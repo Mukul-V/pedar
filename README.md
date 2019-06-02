@@ -256,7 +256,7 @@ Time intervals are floating-point numbers in units of seconds. Particular instan
 t = tick();
 ```
 
-##Function for work with files
+# Function for work with files
 ## __open__
 fd __open__(path, flag);
 
