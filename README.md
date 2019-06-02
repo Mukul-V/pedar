@@ -242,7 +242,7 @@ class_name {
     }
 }
 ```
-# TIME && TICK
+
 ## time
 This function returns the time since 00:00:00 UTC, January 1, 1970 (Unix timestamp) in seconds.
 ```dart
@@ -256,15 +256,15 @@ Time intervals are floating-point numbers in units of seconds. Particular instan
 t = tick();
 ```
 ## rename
-    rename a file
+rename a file
     rename(old_path, new_path);
 
 ## cwd
-    return current dirrectory path
+return current dirrectory path
     cwd();
 
 ## chdir
-    change current directory path
+change current directory path
 
 ## gets
 ## getc
