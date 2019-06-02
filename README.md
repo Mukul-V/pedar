@@ -347,7 +347,7 @@ make install
 pedar test1.p
 
 # Library
-+ 'io.q'
++ 'io.p'
     - open(path, flag)
         flag : 'r' readable, 'w' writeable , 'rw' readable and writeable, 'c' create and open
 
