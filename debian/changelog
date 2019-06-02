@@ -1,0 +1,5 @@
+pedar (1.0.0-1) stretch; urgency=medium
+
+  * Initial packaging work with dpkg-buildpackage.
+
+ -- Yasser Sajjadi <yassersajjadi@gmail.com>  Tue, 30 May 2019 12:00:00 +0000
