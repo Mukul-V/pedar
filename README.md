@@ -273,7 +273,7 @@ t = tick();
     make
     make test
 
-# Install && Using
+# Install and use
     make install
     pedar test1.p
 
