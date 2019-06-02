@@ -1,13 +1,13 @@
-## Pedar Programming Language
+# Pedar Programming Language
 version 1.0.0 alpha 1
 
 ![Gopher image](pedar-small.png)
 
-## Welcome to Pedar
+# Welcome to Pedar
 Pedar is an open source programming language that makes it easy to build simple and efficient software. It has a clean and modern syntax.
 This is the official repository for the Pedar Programming Language standard library and language spec.
 
-## How to contribute
+# How to contribute
 To contribute in this repo, please open a pull request from your fork of this repository. We do have to ask you to sign the Pedar before we can merge any of your work, to protect its open source nature.
 
 For more information on building and developing the core of Pedar.
@@ -55,7 +55,7 @@ main(){
 }
 ```
 
-# How to define a class ?
+## How to define a class ?
 ```dart
 class_name {
     this(){
@@ -82,20 +82,20 @@ class_name {
 }
 ```
 
-# How to use of a class ?
+## How to use of a class ?
 ```dart
 a = class_name(parameters);
 b = a.function(parameters);
 ```
 
-# How to create a list(tuple) ?
+## How to create a list(tuple) ?
 ```dart
 a = [value1, value2, value3 , ...];
 cnt = count(a);
 delete(a, index1, index2, index3, ...);
 ```
 
-## Inheritance
+# Inheritance
 The transfer of the characteristics of a class to other classes that are derived from it.
 
 ```dart
@@ -118,9 +118,9 @@ child : parent{
 }
 ```
 
-## Keywords
+# Keywords
 
-# import
+## import
 ```dart
 import "modulus_path";
 ```
@@ -130,7 +130,7 @@ or
 import 'modulus_path';
 ```
 
-# this
+## this
 'this' object refer to class contain it, for example
 ```dart
 class_name {
@@ -141,7 +141,7 @@ class_name {
 ```
 'this' refer to 'class_name'
 
-# super
+## super
 'super' object refer to first parent class contain it, for example
 ```dart
 super_class_name {
@@ -159,7 +159,7 @@ super_class_name {
 ```
 'super' refer to 'super_class_name'
 
-# while
+## while
 using 'while' for loop, for example
 ```dart
 while([condition]){
@@ -167,7 +167,7 @@ while([condition]){
 }
 ```
 
-# if
+## if
 using 'if' for condition, for example
 ```dart
 if([condition]){
@@ -175,7 +175,7 @@ if([condition]){
 }
 ```
 
-# else
+## else
 using 'if' for condition, for example
 ```dart
 if([condition]){
@@ -188,51 +188,51 @@ else if([condition]){
 }
 ```
 
-# delete
+## delete
 using 'delete' for delete a variable or, remove items of a list, for example
 ```dart
 list = [1,2,3];
 delete(list, 0, 1);
 ```
 
-# count
+## count
 using 'count' for count items in list, for example
 ```dart
 list = [1,2,3];
 n = count(list);
 ```
-# null
-# continue
-# break
-# return
+## null
+## continue
+## break
+## return
 
-# sizeof
+## sizeof
 using 'sizeof' for get size of variable, for example
 ```dart
 list = [1,2,3];
 n = sizeof(list);
 ```
 
-# typeof
+## typeof
 using 'typeof' for get type of variable, for example
 ```dart
 list = [1,2,3];
 n = typeof(list);
 ```
 
-# print
+## print
 using 'print' for write a string or number in console, for example
 ```dart
 print("string is %s and number is %.5n \n", 'hello world!', 3.14);
 ```
 
-# format
+## format
 using 'format' for create a string formated, similar print format, for example
 ```dart
 fmt = format("string is %s and number is %.5n \n", 'hello world!', 3.14);
 ```
 
-# ref
+## ref
 using 'ref' for create a reference variable, for example;
 ```dart
 class_name {
@@ -242,13 +242,13 @@ class_name {
     }
 }
 ```
-##TIME && TICK
-# time
+# TIME && TICK
+## time
 This function returns the time since 00:00:00 UTC, January 1, 1970 (Unix timestamp) in seconds.
 ```dart
 t = time();
 ```
-# tick
+## tick
 What is Tick?
 Time intervals are floating-point numbers in units of seconds. Particular instants in time are expressed in seconds since 12:00am, January 1, 1970(epoch).
 
@@ -257,7 +257,7 @@ t = tick();
 ```
 
 ##Function for work with files
-# __open__
+## __open__
 fd __open__(path, flag);
 
 flag: How you like to use
@@ -272,7 +272,7 @@ Create file table entry
 Set first unused file descriptor to point to file table entry
 Return file descriptor used, -1 upon failure
 
-# __close__
+## __close__
 Parameter
 fd :file descriptor
 
@@ -285,7 +285,7 @@ Destroy file table entry referenced by element fd of file descriptor table
 – As long as no other process is pointing to it!
 Set element fd of file descriptor table to null
 
-# __read__
+## __read__
 From the file indicated by the file descriptor fd, the __read__() function reads cnt bytes of input into the memory area indicated by buf. A successful read() updates the access time for the file.
 
 Syntax
@@ -302,7 +302,7 @@ return 0 on reaching end of file
 return -1 on error
 return -1 on signal interrupt
 
-# __write__
+## __write__
 Writes cnt bytes from buf to the file or socket associated with fd. cnt should not be greater than long size. If cnt is zero, __write__() simply returns 0 without attempting any other action.
 
 size __write__ (fd, buf, cnt);
@@ -318,7 +318,7 @@ return 0 on reaching end of file
 return -1 on error
 return -1 on signal interrupt
 
-# __seek__
+## __seek__
 seek file to cnt
 __seek__(fd, cnt, flag);
 
@@ -327,26 +327,26 @@ flags :
 1 : from current,
 2 : from end
 
-# rename
+## rename
 rename a file
 rename(old_path, new_path);
 
-# cwd
+## cwd
 return current dirrectory path
 cwd();
 
-# chdir
+## chdir
 change current directory path
 
-## Build Instructions
+# Build Instructions
 make
 make test
 
-## Install && Using
+# Install && Using
 make install
 pedar test1.q
 
-## Library
+# Library
 + 'io.q'
     - open(path, flag)
         flag : 'r' readable, 'w' writeable , 'rw' readable and writeable, 'c' create and open
