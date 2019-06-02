@@ -344,7 +344,7 @@ make test
 
 # Install && Using
 make install
-pedar test1.q
+pedar test1.p
 
 # Library
 + 'io.q'
