@@ -7,7 +7,7 @@ version 1.0.0 alpha 1
 Pedar is an open source programming language that makes it easy to build simple and efficient software. It has a clean and modern syntax.
 This is the official repository for the Pedar Programming Language standard library and language spec.
 
-##How to contribute
+## How to contribute
 To contribute in this repo, please open a pull request from your fork of this repository. We do have to ask you to sign the Pedar before we can merge any of your work, to protect its open source nature.
 
 For more information on building and developing the core of Pedar.
