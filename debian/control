@@ -1,0 +1,12 @@
+Source: pedar
+Section: devel
+Priority: optional
+Maintainer: Yasser Sajjadi <yassersajjadi@gmail.com>
+Build-Depends: build-essential, debhelper (>= 9)
+
+Package: pedar
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Pedar is an open source programming language that makes it easy to build simple and efficient software.
+ It has a clean and modern syntax.
+ This is the official repository for the Pedar Programming Language standard library and language spec.
