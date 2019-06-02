@@ -338,15 +338,15 @@ cwd();
 # chdir
 change current directory path
 
-##Build Instructions
+## Build Instructions
 make
 make test
 
-##Install && Using
+## Install && Using
 make install
-Pedar test1.q
+pedar test1.q
 
-##Library
+## Library
 + 'io.q'
     - open(path, flag)
         flag : 'r' readable, 'w' writeable , 'rw' readable and writeable, 'c' create and open
