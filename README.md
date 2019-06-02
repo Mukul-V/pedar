@@ -55,7 +55,7 @@ main(){
 }
 ```
 
-#How to define a class ?
+# How to define a class ?
 ```dart
 class_name {
     this(){
@@ -82,20 +82,20 @@ class_name {
 }
 ```
 
-#How to use of a class ?
+# How to use of a class ?
 ```dart
 a = class_name(parameters);
 b = a.function(parameters);
 ```
 
-#How to create a list(tuple) ?
+# How to create a list(tuple) ?
 ```dart
 a = [value1, value2, value3 , ...];
 cnt = count(a);
 delete(a, index1, index2, index3, ...);
 ```
 
-##Inheritance
+## Inheritance
 The transfer of the characteristics of a class to other classes that are derived from it.
 
 ```dart
@@ -118,7 +118,7 @@ child : parent{
 }
 ```
 
-##Keywords
+## Keywords
 
 # import
 ```dart
