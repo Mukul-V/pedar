@@ -1,0 +1,6 @@
+Pedar Programming Language
+version 1.0.0 alpha 1
+
+using pedar
+--------------
+    using pedar [path] [parameters]
