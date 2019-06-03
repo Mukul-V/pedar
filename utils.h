@@ -6,6 +6,9 @@
 #define white_space(c) ((c) == ' ' || (c) == '\t')
 #define valid_digit(c) ((c) >= '0' && (c) <= '9')
 
+#define max(a, b) ((a > b) ? a : b)
+#define abs(a) ((a > 0) ? a : -a)
+
 void
 utils_swap(char* a, char* b);
 
