@@ -162,29 +162,29 @@ super_class_name {
 ## while
 using 'while' for loop, for example
 ```dart
-while([condition]){
-    [statement]
+while(condition){
+    statement
 }
 ```
 
 ## if
 using 'if' for condition, for example
 ```dart
-if([condition]){
-    [statement]
+if(condition){
+    statement
 }
 ```
 
 ## else
 using 'if' for condition, for example
 ```dart
-if([condition]){
-    [statement]
+if(condition){
+    statement
 }
-else if([condition]){
-    [statement]
+else if(condition){
+    statement
 } else {
-    [statement]
+    statement
 }
 ```
 
@@ -280,21 +280,20 @@ change current directory path
 # Library
 + 'io.p'
     - open(path, flag)
-        flag : 'r' readable, 'w' writeable , 'rw' readable and writeable, 'c' create and open
+    -- flag : 'r' readable, 'w' writeable , 'rw' readable and writeable, 'c' create and open
 
     - read()
     - read(cnt)
-        cnt: length of buffer
+    -- cnt: length of buffer
 
     - write(buf)
-        buf: buffer to write data
+    -- buf: buffer to write data
 
     - seek(cnt, flag)
-        cnt: length of seek
-        flag : 'b' begin, 'c' current, 'e' end
+    -- cnt: length of seek
+    -- flag : 'b' begin, 'c' current, 'e' end
 
     - close()
     - tell()
 # contact us
-    We are waiting for your email.
         Email: yassersajjadi@gmail.com
