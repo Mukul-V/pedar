@@ -39,9 +39,6 @@ static char *STR_DOUBLE = "DOUBLE";
 #define OBJECT_MALLOC(type) malloc(sizeof(object_type_t) + sizeof(object_level_t) + sizeof(type))
 #define OBJECT_REALLOC(ptr, type) realloc(ptr, sizeof(object_type_t) + sizeof(object_level_t) + sizeof(type))
 
-#define max(a, b) ((a > b) ? a : b)
-#define abs(a) ((a > 0) ? a : -a)
-
 /* variable type */
 typedef struct variable {
 	string_t key;
@@ -3063,13 +3060,23 @@ eval(class_t *base, array_t *code)
             }
 			*/
 
+			if(efx){
+				if(strncmp(epx->key, efx->key, max(strlen(epx->key), strlen(efx->key))) == 0){
+					if(!(egx = variable_get(epx->variables, epx->key))){
+		                printf("'this' object not defined in class %s.\n", epx->key);
+		                exit(-1);
+		            }
+		            eax = egx->value;
+		        }
+			}
+
             rp = table_rpop(stack_efx);
             efx = (function_t *)rp->value;
 
             rp = table_rpop(stack_epx);
             epx = (class_t *)rp->value;
 
-            //table_destroy(frame, object_destroy);
+            table_destroy(frame, object_destroy);
 
             rp = table_rpop(stack_frame);
             frame = (table_t *)rp->value;
@@ -3440,6 +3447,14 @@ eval(class_t *base, array_t *code)
             c = c->next;
             continue;
         }
+		else if (op == RET){
+			printf("return class %s.%s\n", epx->key, efx->key);
+			if(eax){
+				eax->level = LEVEL_RESPONSE;
+			}
+			c = c->next;
+			continue;
+		}
 		else if (op == BREAK){
 			iarray_t *b = c->next;
             while(b != code->begin){
