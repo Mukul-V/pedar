@@ -23,46 +23,39 @@ parser_error(token_t *token, char *str)
 }
 
 class_t *
-parser_class_get(table_t *tls, itable_t *b, class_t *clspar)
+parser_class_get(class_t *clspar, char *key)
 {
-    class_t *clscur = clspar;
-    itable_t *u;
-    itable_t *c;
-    c = b;
-    start:
-    while((c != tls->end)){
-        token_t *token = (token_t *) c->value;
-        if(token->key == TOKEN_DOT){
-            c = c->next;
-            continue;
-        } else if(token->key != TOKEN_ID){
-            *b = *c;
-            return clscur;
-        }
-        for(u = clscur->childrens->begin; u && (u != clscur->childrens->end); u = u->next){
-            class_t *scp = (class_t *)u->value;
-            if(!((char*)scp->key)){
-                continue;
-            }
+    if(!clspar){
+        return clspar;
+    }
 
-            if(strncmp((char *)token->value, (char *)scp->key, max(strlen((char *)token->value), strlen((char *)scp->key))) == 0){
-                clscur = scp;
-                c = c->next;
-                goto start;
-            }
-        }
-        break;
-    }
-    class_t *scpres;
-    for(u = clspar->parents->begin; u && (u != clspar->parents->end); u = u->next){
-        c = b;
-        class_t *scg = (class_t *)u->value;
-        if(!(scpres = parser_class_get(tls, c, scg))){
-            continue;
-        }
-        return scpres;
-    }
-    return nullptr;
+    if(strncmp(key, clspar->key, max(strlen(key), strlen(clspar->key))) == 0){
+		return clspar;
+	}
+
+	itable_t *u;
+
+	for(u = clspar->childrens->begin; u && (u != clspar->childrens->end); u = u->next){
+		class_t *cls = (class_t *)u->value;
+		if(!((char*)cls->key)){
+    		continue;
+		}
+
+		if(strncmp(key, cls->key, max(strlen(key), strlen(cls->key))) == 0){
+			return cls;
+		}
+	}
+
+	class_t *clsres;
+	for(u = clspar->parents->begin; u && (u != clspar->parents->end); u = u->next){
+		class_t *cls = (class_t *)u->value;
+		if(!(clsres = parser_class_get(cls, key))){
+			continue;
+		}
+	  	return clsres;
+	}
+
+	return nullptr;
 }
 
 itable_t *
@@ -1214,72 +1207,31 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
         */
 
         if(token->key == TOKEN_ID){
-            long64_t value = token->value;
+
+            char *class_name = (char *)token->value;
+            class_t *class_object = parser_class_get(clspar, class_name);
 
             c = c->next;
             token = (token_t *) c->value;
 
             if(token->key == TOKEN_DOT){
-                class_t *clscur = (class_t *)malloc(sizeof(class_t));
-                clscur->key = (char *)value;
-                clscur->type = CLASS_RAW;
-
-                clscur->parents = table_create();
-                clscur->childrens = table_create();
-                clscur->variables = table_create();
-                clscur->functions = table_create();
-
-                clscur->super = clspar;
-
-                table_rpush(clscur->parents, (value_p)clspar);
-                table_rpush(clspar->childrens, (value_p)clscur);
-
-                array_rpush(code, JMP);
-                iarray_t *jmp = array_rpush(code, 0);
-
-                clscur->start = array_rpush(code, CENT);
-
-                c = c->next;
-                token = (token_t *) c->value;
-
-                while(token->key != TOKEN_RBRACE){
-                    c = statement(tls, base, c, clscur, code);
-                    token = (token_t *) c->value;
-
-                    if(token->key != TOKEN_RBRACE){
-                        c = c->next;
-                        token = (token_t *) c->value;
-                    }
-                }
-
-                // array_rpush(code, VAR);
-                // array_rpush(code, value);
-                // array_rpush(code, CHG);
-                //array_rpush(code, CALL);
-
-                clscur->end = array_rpush(code, CLEV);
-
-                jmp->value = (value_t)array_rpush(code, NUL);
-
-                if(c != tls->end){
-                    return c;
-                }
-
-                c = c->next;
-                token = (token_t *) c->value;
-                continue;
+                parser_error(token, "bad definition of parent class!");
             }
-            else if(token->key == TOKEN_COLON || token->key == TOKEN_LBRACE){
-                class_t *clscur = (class_t *)malloc(sizeof(class_t));
-                clscur->key = (char *)value;
-                clscur->type = CLASS_RAW;
+            else
+            if(token->key == TOKEN_COLON || token->key == TOKEN_LBRACE){
+                class_t *clscur = class_object;
+                if(!class_object){
+                    clscur = (class_t *)malloc(sizeof(class_t));
+                    clscur->key = class_name;
+                    clscur->type = CLASS_RAW;
 
-                clscur->parents = table_create();
-                clscur->childrens = table_create();
-                clscur->variables = table_create();
-                clscur->functions = table_create();
+                    clscur->parents = table_create();
+                    clscur->childrens = table_create();
+                    clscur->variables = table_create();
+                    clscur->functions = table_create();
 
-                clscur->super = clspar;
+                    clscur->super = clspar;
+                }
 
                 table_rpush(clscur->parents, (value_p)clspar);
                 table_rpush(clspar->childrens, (value_p)clscur);
@@ -1287,28 +1239,49 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
                 if(token->key == TOKEN_COLON){
                     c = c->next;
                     token = (token_t *) c->value;
+
+                    class_t *scp = nullptr;
+
                     while(token->key != TOKEN_LBRACE){
                         if(token->key == TOKEN_COMMA){
                             c = c->next;
                             token = (token_t *) c->value;
+
+                            if(token->key != TOKEN_ID){
+                                parser_error(token, "bad definition of parent class1!");
+                            }
+
+                            if(!(scp = parser_class_get(clspar, (char *)token->value))){
+                                if(!(scp = parser_class_get(class_object, (char *)token->value))){
+                                    parser_error(token, "bad definition of parent class2!");
+                                }
+                            }
+
                             continue;
                         }
+
                         if(token->key != TOKEN_ID){
                             parser_error(token, "bad definition of parent class!");
                         }
-                        class_t *scp;
-                        if(!(scp = parser_class_get(tls, c, clspar))){
-                            if(!(scp = parser_class_get(tls, c, base))){
-                                token = (token_t *) c->value;
-                                parser_error(token, "bad definition of parent class!");
-                            }
+
+                        if(!(scp = parser_class_get(scp ? scp : clscur, (char *)token->value))){
+                            parser_error(token, "bad definition of parent class!");
                         }
+
+                        c = c->next;
                         token = (token_t *) c->value;
-                        table_rpush(clscur->parents, (value_p)scp);
-                        if(token->key != TOKEN_LBRACE){
+
+                        if(token->key == TOKEN_DOT){
                             c = c->next;
                             token = (token_t *) c->value;
+                            continue;
                         }
+
+                        if(token->key != TOKEN_COMMA && token->key != TOKEN_LBRACE){
+                            parser_error(token, "bad definition of parent class!");
+                        }
+
+                        table_rpush(clscur->parents, (value_p)scp);
                     }
                 }
 
@@ -1345,9 +1318,10 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
                 c = c->next;
                 continue;
             }
-            else if(token->key == TOKEN_LPAREN){
+            else
+            if(token->key == TOKEN_LPAREN){
                 function_t *fun = (function_t *)malloc(sizeof(function_t));
-                fun->key = (char *)value;
+                fun->key = class_name;
                 fun->type = FN_PAREN;
                 fun->n = 0;
                 fun->variables = table_create();
@@ -1416,9 +1390,10 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
                 c = c->next;
                 continue;
             }
-            else if(token->key == TOKEN_LBRACKET){
+            else
+            if(token->key == TOKEN_LBRACKET){
                 function_t *fun = (function_t *)malloc(sizeof(function_t));
-                fun->key = (char *)value;
+                fun->key = class_name;
                 fun->type = FN_BRACKET;
                 fun->n = 0;
                 fun->variables = table_create();

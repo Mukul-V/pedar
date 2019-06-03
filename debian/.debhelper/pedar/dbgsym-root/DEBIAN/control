@@ -1,0 +1,13 @@
+Package: pedar-dbgsym
+Package-Type: ddeb
+Source: pedar
+Version: 1.0.0-1
+Auto-Built-Package: debug-symbols
+Architecture: amd64
+Maintainer: Yasser Sajjadi <yassersajjadi@gmail.com>
+Installed-Size: 107
+Depends: pedar (= 1.0.0-1)
+Section: debug
+Priority: optional
+Description: debug symbols for pedar
+Build-Ids: a608e9c8623f567106f80278f2dccdf2468c95b2

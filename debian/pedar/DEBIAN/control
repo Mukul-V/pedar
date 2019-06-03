@@ -1,0 +1,11 @@
+Package: pedar
+Version: 1.0.0-1
+Architecture: amd64
+Maintainer: Yasser Sajjadi <yassersajjadi@gmail.com>
+Installed-Size: 96
+Depends: libc6 (>= 2.7)
+Section: devel
+Priority: optional
+Description: Pedar is an open source programming language that makes it easy to build simple and efficient software.
+ It has a clean and modern syntax.
+ This is the official repository for the Pedar Programming Language standard library and language spec.
