@@ -13,7 +13,8 @@ typedef enum object_type {
 typedef enum object_level {
 	LEVEL_TEMPRATORY,
 	LEVEL_REGISTER,
-	LEVEL_REFRENCE
+	LEVEL_REFRENCE,
+	LEVEL_RESPONSE
 } object_level_t;
 
 typedef struct object {
@@ -82,6 +83,7 @@ enum
 	SVPA,
 	RAR,
 	REF,
+	RET,
 
 	OPEN,
 	CLOSE,
