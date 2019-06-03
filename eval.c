@@ -7,6 +7,12 @@
 #include <assert.h>
 #include <time.h>
 
+#ifdef WIN32
+	#include <conio.h>
+#else
+	#include "conio.h"
+#endif
+
 #include "types.h"
 #include "utils.h"
 #include "array.h"
@@ -907,6 +913,7 @@ eval(class_t *base, array_t *code)
         	c = c->next;
         	continue;
         }
+
         else if (op == LOPB){
             c = c->next;
             continue;
@@ -3921,9 +3928,7 @@ eval(class_t *base, array_t *code)
 
 			char str[2];
 
-			fflush(stdin);
-
-			str[0] = fgetc(stdin);
+			str[0] = getch();
 			str[1] = '\0';
 
 			obj->type = TP_DATA;
