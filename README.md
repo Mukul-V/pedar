@@ -1,4 +1,5 @@
 # Pedar Programming Language
+GNU General Public License v3.0 
 (version 1.0.0 alpha 1)
 
 ![Gopher image](pedar-small.png)
