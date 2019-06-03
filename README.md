@@ -82,7 +82,7 @@ class_name {
 }
 ```
 
-## How to use of class ?
+## How to use a class ?
 ```dart
 a = class_name(parameters);
 b = a.function(parameters);
