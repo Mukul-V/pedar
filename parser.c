@@ -44,7 +44,8 @@ parser_class_get(table_t *tls, itable_t *b, class_t *clspar)
             if(!((char*)scp->key)){
                 continue;
             }
-            if(strncmp((char *)token->value, (char *)scp->key, strlen((char *)token->value)) == 0){
+
+            if(strncmp((char *)token->value, (char *)scp->key, max(strlen((char *)token->value), strlen((char *)scp->key))) == 0){
                 clscur = scp;
                 c = c->next;
                 goto start;
@@ -644,7 +645,7 @@ expression(table_t *tls, itable_t *c, array_t *code)
                 }
             }
             /* return token simicolon */
-
+            array_rpush(code, RET);
             array_rpush(code, LEV);
 
             token = (token_t *) c->value;
