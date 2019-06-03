@@ -1,5 +1,5 @@
 # Pedar Programming Language
-GNU General Public License v3.0 
+GNU General Public License v3.0
 (version 1.0.0 alpha 1)
 
 ![Gopher image](pedar-small.png)
@@ -298,3 +298,6 @@ change current directory path
     - tell()
 # contact us
         Email: yassersajjadi@gmail.com
+
+# License
+GNU General Public License v3.0
