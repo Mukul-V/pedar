@@ -3448,7 +3448,6 @@ eval(class_t *base, array_t *code)
             continue;
         }
 		else if (op == RET){
-			printf("return class %s.%s\n", epx->key, efx->key);
 			if(eax){
 				eax->level = LEVEL_RESPONSE;
 			}
