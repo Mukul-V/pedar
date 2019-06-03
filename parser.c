@@ -494,17 +494,7 @@ expression(table_t *tls, itable_t *c, array_t *code)
             token = (token_t *) c->value;
             continue;
         } else if(token->key == TOKEN_IF){
-            /*
-            if (...) <statement> [else <statement>]
 
-            if (...)       <cond>
-            JZ a
-            <statement>    <statement>
-            else:        JMP b
-            a:
-            <statement>    <statement>
-            b:           b:
-            */
             c = c->next;
             token = (token_t *) c->value;
 
@@ -577,14 +567,6 @@ expression(table_t *tls, itable_t *c, array_t *code)
             continue;
         } else if(token->key == TOKEN_WHILE){
             c = c->next;
-            /*
-            a:           a:
-            while (<cond>)    <cond>
-            JZ b
-            <statement>      <statement>
-            JMP a
-            b:           b:
-            */
 
             iarray_t *a = array_rpush(code, LOPB);
 
