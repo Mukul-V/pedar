@@ -101,7 +101,7 @@ The transfer of the characteristics of a class to other classes that are derived
 ```dart
 parent{
     this(){
-
+        return this;
     }
     fn(a, b){
         return a + b;
@@ -110,7 +110,7 @@ parent{
 
 child : parent{
     this(){
-
+        return this;
     }
     fn2(a, b){
         return a - b;
