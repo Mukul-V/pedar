@@ -1045,22 +1045,22 @@ expression(table_t *tls, itable_t *c, array_t *code)
             token = (token_t *) c->value;
 
             continue;
-        } else if(token->key == TOKEN_GETC){
+        } else if(token->key == TOKEN_GETKEY){
             c = c->next;
             token = (token_t *) c->value;
 
             if(token->key != TOKEN_LPAREN){
-                parser_error(token, "expression in 'getc' must start with '('!");
+                parser_error(token, "expression in 'getkey' must start with '('!");
             }
 
             c = c->next;
             token = (token_t *) c->value;
 
             if(token->key != TOKEN_RPAREN){
-                parser_error(token, "expression in 'getc' must end by ')'!");
+                parser_error(token, "expression in 'getkey' must end by ')'!");
             }
 
-            array_rpush(code, GETC);
+            array_rpush(code, GETKEY);
 
             c = c->next;
             token = (token_t *) c->value;

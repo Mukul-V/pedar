@@ -36,5 +36,5 @@ main(){
     input = gets(100);
     print("%s", input);
 
-    getc();
+    getkey();
 }

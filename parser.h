@@ -94,7 +94,7 @@ enum
 	CWD,
 	CHDIR,
 	GETS,
-	GETC,
+	GETKEY,
 
 	TICK,
 	TIME,

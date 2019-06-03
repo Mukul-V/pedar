@@ -3918,7 +3918,7 @@ eval(class_t *base, array_t *code)
 			c = c->next;
 			continue;
         }
-		else if (op == GETC){
+		else if (op == GETKEY){
 			object_t *obj;
 
 			if(!(obj = OBJECT_MALLOC(void *))){

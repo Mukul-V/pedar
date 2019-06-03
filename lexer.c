@@ -650,8 +650,8 @@ lexer(table_t *ls, const char *source)
                     lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
                 }
                 continue;
-            } else if(strncmp(source + pos2, "getc", 4) == 0){
-                if(table_rpush(ls, (value_p)token_create(TOKEN_GETC,0,pos2,row,col-(pos-pos2))) == nullptr){
+            } else if(strncmp(source + pos2, "getkey", 6) == 0){
+                if(table_rpush(ls, (value_p)token_create(TOKEN_GETKEY,0,pos2,row,col-(pos-pos2))) == nullptr){
                     lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
                 }
                 continue;
