@@ -27,7 +27,7 @@ main(){
 
     print("open file by fd %n\n", f.fd);
 
-    buf = f.read(100);
+    buf = f.read(f.length());
     print("%s\n", buf);
 
     print("tell %n\n", f.tell());

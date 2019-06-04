@@ -658,6 +658,11 @@ library_file(class_t *clspar, array_t *code){
     array_rpush(code, SEEK);
     array_rpush(code, SD);
 
+    array_rpush(code, VAR);
+    array_rpush(code, (value_t)"fd");
+
+    array_rpush(code, PUSH);
+
     array_rpush(code, IMM);
     array_rpush(code, 0);
     array_rpush(code, TP_IMM);
