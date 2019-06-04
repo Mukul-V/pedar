@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <assert.h>
 #include <time.h>
+#include <dirent.h>
 
 #ifdef WIN32
 	#include <conio.h>
@@ -3894,6 +3895,51 @@ eval(class_t *base, array_t *code)
 			c = c->next;
             continue;
         }
+		else if (op == WALK){
+			object_t *obj;
+
+			if(eax->type != TP_DATA){
+				printf("walk, object not a string!\n");
+				exit(-1);
+			}
+
+			char *path = data_to ((table_t *)eax->ptr);
+			path[table_count((table_t *)eax->ptr)] = '\0';
+
+			table_t *tbl = table_create();
+
+			DIR *dir;
+			struct dirent *ent;
+
+			if ((dir = opendir (path)) != NULL) {
+				/* print all the files and directories within directory */
+				while ((ent = readdir (dir)) != NULL) {
+					if(!(obj = OBJECT_MALLOC(void *))){
+						printf("object, bad memory!\n");
+						exit(-1);
+					}
+					obj->type = TP_DATA;
+					obj->ptr = data_from(ent->d_name);
+					table_rpush(tbl, (value_p)obj);
+				}
+				closedir (dir);
+			} else {
+			  /* could not open directory */
+			  tbl = nullptr;
+			}
+
+			if(!(obj = OBJECT_MALLOC(void *))){
+				printf("object, bad memory!\n");
+				exit(-1);
+			}
+			obj->type = TP_DATA;
+			obj->ptr = tbl;
+
+			eax = obj;
+
+			c = c->next;
+            continue;
+		}
 		else if (op == GETS){
 			object_t *obj;
 
@@ -3997,7 +4043,7 @@ eval(class_t *base, array_t *code)
 int
 main(int argc, char **argv)
 {
-    argc--;
+	argc--;
     argv++;
 
     // parse arguments

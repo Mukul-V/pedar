@@ -263,23 +263,25 @@ class_name {
 + io
     - io.file
         - open(path, flag)
-        -- flag : 'r' readable, 'w' writeable , 'rw' readable and writeable, 'c' create and open
+            - flag : 'r' readable, 'w' writeable , 'rw' readable and writeable, 'c' create and open
 
         - read(cnt)
-        -- cnt: length of buffer
+            - cnt: length of buffer
 
         - write(buf)
-        -- buf: buffer to write data
+            - buf: buffer to write data
 
         - seek(cnt, flag)
-        -- cnt: length of seek
-        -- flag : 'b' begin, 'c' current, 'e' end
+            - cnt: length of seek
+            - flag : 'b' begin, 'c' current, 'e' end
 
         - close()
         - tell()
         - cwd()
         - chdir(path)
         - rename(old_name, new_name)
+        - walk(path)
+            - return list of files in path
 
     - io.keyboard
         - gets()

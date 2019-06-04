@@ -10,7 +10,7 @@ main(){
     f = file.open("help.chw", 'r');
 
     print("open file by fd %n\n", f.fd);
-    
+
     buf = f.read(f.length());
     print("%s\n", buf);
 
@@ -42,6 +42,14 @@ main(){
     print("what's your name?\n");
     input = keyboard.gets(100);
     print("%s", input);
+
+    fls = file.walk("libs");
+
+    i = 0;
+    while(i < count(fls)){
+        print("%s\n", fls[i]);
+        i = i + 1;
+    }
 
     keyboard.get();
 }

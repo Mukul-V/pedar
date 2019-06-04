@@ -95,6 +95,7 @@ enum
 	CHDIR,
 	GETS,
 	GETKEY,
+	WALK,
 
 	TICK,
 	TIME,

@@ -964,6 +964,46 @@ library_file(class_t *clspar, array_t *code){
     fn_jmp->value = (value_t)array_rpush(code, NUL);
 
 
+    // walk
+    fun = (function_t *)malloc(sizeof(function_t));
+    fun->key = "walk";
+    fun->type = FN_PAREN;
+    fun->n = 1;
+    fun->variables = table_create();
+    fun->super = clscur;
+
+    table_rpush(clscur->functions, (value_p)fun);
+
+    array_rpush(code, JMP);
+    fn_jmp = array_rpush(code, 0);
+
+    fun->start = array_rpush(code, ENT);
+
+    array_rpush(code, VAR);
+    array_rpush(code, (value_t)"path_dst");
+
+    array_rpush(code, LD);
+
+    array_rpush(code, VAR);
+    array_rpush(code, (value_t)"res");
+
+    array_rpush(code, PUSH);
+
+    array_rpush(code, VAR);
+    array_rpush(code, (value_t)"path_dst");
+
+    array_rpush(code, WALK);
+    array_rpush(code, SD);
+
+    array_rpush(code, VAR);
+    array_rpush(code, (value_t)"res");
+
+    array_rpush(code, RET);
+    array_rpush(code, LEV);
+
+    fun->end = array_rpush(code, LEV);
+    fn_jmp->value = (value_t)array_rpush(code, NUL);
+
     clscur->end = array_rpush(code, CLEV);
     cls_jmp->value = (value_t)array_rpush(code, NUL);
 
