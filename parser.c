@@ -58,6 +58,11 @@ parser_class_get(class_t *clspar, char *key)
 	return nullptr;
 }
 
+#include "libs/io.h"
+#include "libs/file.h"
+#include "libs/keyboard.h"
+#include "libs/time.h"
+
 itable_t *
 expression(table_t *tls, itable_t *c, array_t *code)
 {
@@ -65,7 +70,7 @@ expression(table_t *tls, itable_t *c, array_t *code)
         token_t *token = (token_t *) c->value;
 
         /*printf("+token(%lld:%lld): \'%c\' %lld!\n",
-        token->row, token->col, (char)token->key, token->key);*/
+            token->row, token->col, (char)token->key, token->key);*/
 
         if(token->key == TOKEN_SUPER){
             c = c->next;
@@ -728,386 +733,6 @@ expression(table_t *tls, itable_t *c, array_t *code)
             token = (token_t *) c->value;
 
             continue;
-        } else if(token->key == TOKEN_OPEN){
-            c = c->next;
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_LPAREN){
-                parser_error(token, "expression in 'open' must start with '('!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            c = expression(tls, c, code);
-            array_rpush(code, PUSH);
-
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_COMMA){
-                parser_error(token, "expression in 'open', have 2 part open(fd, flag)!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            c = expression(tls, c, code);
-
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_RPAREN){
-                parser_error(token, "expression in 'open' must end by ')'!");
-            }
-
-            array_rpush(code, OPEN);
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            continue;
-        } else if(token->key == TOKEN_CLOSE){
-            c = c->next;
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_LPAREN){
-                parser_error(token, "expression in 'close' must start with '('!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            c = expression(tls, c, code);
-
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_RPAREN){
-                parser_error(token, "expression in 'close' must end by ')'!");
-            }
-
-            array_rpush(code, CLOSE);
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            continue;
-        } else if(token->key == TOKEN_READ){
-            c = c->next;
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_LPAREN){
-                parser_error(token, "expression in 'read' must start with '('!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            c = expression(tls, c, code);
-            array_rpush(code, PUSH);
-
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_COMMA){
-                parser_error(token, "expression in 'read', have 3 part read(fd, buf, flag)!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            c = expression(tls, c, code);
-            array_rpush(code, PUSH);
-
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_COMMA){
-                parser_error(token, "expression in 'read', have 3 part read(fd, buf, flag)!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            c = expression(tls, c, code);
-
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_RPAREN){
-                parser_error(token, "expression in 'read' must end by ')'!");
-            }
-
-            array_rpush(code, READ);
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            continue;
-        } else if(token->key == TOKEN_WRITE){
-            c = c->next;
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_LPAREN){
-                parser_error(token, "expression in 'write' must start with '('!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            c = expression(tls, c, code);
-            array_rpush(code, PUSH);
-
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_COMMA){
-                parser_error(token, "expression in 'write', have 3 part write(fd, buf, flag)!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            c = expression(tls, c, code);
-            array_rpush(code, PUSH);
-
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_COMMA){
-                parser_error(token, "expression in 'write', have 3 part write(fd, buf, flag)!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            c = expression(tls, c, code);
-
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_RPAREN){
-                parser_error(token, "expression in 'write' must end by ')'!");
-            }
-
-            array_rpush(code, WRITE);
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            continue;
-        } else if(token->key == TOKEN_SEEK){
-            c = c->next;
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_LPAREN){
-                parser_error(token, "expression in 'seek' must start with '('!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            c = expression(tls, c, code);
-            array_rpush(code, PUSH);
-
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_COMMA){
-                parser_error(token, "expression in 'seek', have 3 part seek(fd, n, flag)!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            c = expression(tls, c, code);
-            array_rpush(code, PUSH);
-
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_COMMA){
-                parser_error(token, "expression in 'seek', have 3 part seek(fd, n, flag)!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            c = expression(tls, c, code);
-
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_RPAREN){
-                parser_error(token, "expression in 'seek' must end by ')'!");
-            }
-
-            array_rpush(code, SEEK);
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            continue;
-        } else if(token->key == TOKEN_RENAME){
-            c = c->next;
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_LPAREN){
-                parser_error(token, "expression in 'rename' must start with '('!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            c = expression(tls, c, code);
-            array_rpush(code, PUSH);
-
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_COMMA){
-                parser_error(token, "expression in 'rename', have 2 part rename(old path, new path)!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            c = expression(tls, c, code);
-
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_RPAREN){
-                parser_error(token, "expression in 'rename' must end by ')'!");
-            }
-
-            array_rpush(code, RENAME);
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            continue;
-        } else if(token->key == TOKEN_CWD){
-            c = c->next;
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_LPAREN){
-                parser_error(token, "expression in 'cwd' must start with '('!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_RPAREN){
-                parser_error(token, "expression in 'cwd' must end by ')'!");
-            }
-
-            array_rpush(code, CWD);
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            continue;
-        } else if(token->key == TOKEN_CHDIR){
-            c = c->next;
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_LPAREN){
-                parser_error(token, "expression in 'chdir' must start with '('!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            c = expression(tls, c, code);
-
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_RPAREN){
-                parser_error(token, "expression in 'chdir' must end by ')'!");
-            }
-
-            array_rpush(code, CHDIR);
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            continue;
-        } else if(token->key == TOKEN_GETS){
-            c = c->next;
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_LPAREN){
-                parser_error(token, "expression in 'gets' must start with '('!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            c = expression(tls, c, code);
-
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_RPAREN){
-                parser_error(token, "expression in 'gets' must end by ')'!");
-            }
-
-            array_rpush(code, GETS);
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            continue;
-        } else if(token->key == TOKEN_GETKEY){
-            c = c->next;
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_LPAREN){
-                parser_error(token, "expression in 'getkey' must start with '('!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_RPAREN){
-                parser_error(token, "expression in 'getkey' must end by ')'!");
-            }
-
-            array_rpush(code, GETKEY);
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            continue;
-        } else if(token->key == TOKEN_TICK){
-            c = c->next;
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_LPAREN){
-                parser_error(token, "expression in 'tick' must start with '('!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_RPAREN){
-                parser_error(token, "expression in 'tick' must end by ')'!");
-            }
-
-            array_rpush(code, TICK);
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            continue;
-        } else if(token->key == TOKEN_TIME){
-            c = c->next;
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_LPAREN){
-                parser_error(token, "expression in 'time' must start with '('!");
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            if(token->key != TOKEN_RPAREN){
-                parser_error(token, "expression in 'time' must end by ')'!");
-            }
-
-            array_rpush(code, TIME);
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            continue;
         } else if(token->key == TOKEN_LPAREN){
             c = c->next;
             token = (token_t *) c->value;
@@ -1205,7 +830,6 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
         TOKEN_PERCENT TOKEN_PLUS TOKEN_MINUS TOKEN_GTEQ TOKEN_LTEQ
         TOKEN_AND TOKEN_OR TOKEN_LT TOKEN_GT TOKEN_LTLT TOKEN_GTGT
         */
-
         if(token->key == TOKEN_ID){
 
             char *class_name = (char *)token->value;
@@ -1481,80 +1105,6 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
                 return c;
             }
             c = c->next;
-            continue;
-        } else if(token->key == TOKEN_IMPORT){
-            c = c->next;
-            token = (token_t *) c->value;
-
-            FILE *fd;
-            char destination [ MAX_PATH ];
-
-            char *str_value = (char *)token->value;
-
-                #ifdef WIN32
-        	if(*str_value != '\\'){
-                #else
-        	if(*str_value != '/'){
-                #endif
-
-        		char cwd[MAX_PATH];
-        		if (getcwd(cwd, sizeof(cwd)) == NULL) {
-        			perror("getcwd() error");
-        			exit(-1);
-        		}
-
-                utils_combine ( destination, cwd, str_value );
-        	} else {
-        		strcpy(destination, str_value);
-        	}
-
-            if (!(fd = fopen(destination, "rb"))) {
-                if (!(fd = fopen(str_value, "rb"))) {
-                    printf("could not open(%s)\n", str_value);
-                    exit(-1);
-                }
-            }
-
-            c = c->next;
-            token = (token_t *) c->value;
-
-            // Current position
-            long64_t pos = ftell(fd);
-            // Go to end
-            fseek(fd, 0, SEEK_END);
-            // read the position which is the size
-            long64_t chunk = ftell(fd);
-            // restore original position
-            fseek(fd, pos, SEEK_SET);
-
-            char *buf;
-            if (!(buf = malloc(chunk + 1))) {
-                printf("could not malloc(%lld) for buf area\n", chunk);
-                exit(-1);
-            }
-
-            long64_t i;
-            // read the source file
-            if ((i = fread(buf, 1, chunk, fd)) < chunk) {
-                printf("read returned %lld\n", i);
-                exit(-1);
-            }
-
-            buf[i] = '\0';
-
-            fclose(fd);
-
-            table_t *tbl = table_create();
-            lexer(tbl, buf);
-
-            c->next->previous = tbl->end->previous;
-            tbl->end->previous->next = c->next;
-
-            c->next = tbl->begin;
-            tbl->begin->previous = c;
-
-            c = c->next;
-            token = (token_t *) c->value;
             continue;
         } else if(token->key == TOKEN_THIS){
             c = c->next;
@@ -3772,6 +3322,151 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
             continue;
         } else if(token->key == TOKEN_RBRACE) {
             return c;
+        } else if(token->key == TOKEN_IMPORT){
+            c = c->next;
+            token = (token_t *) c->value;
+
+            if(token->key == TOKEN_ID){
+                if(strncmp((char *)token->value, "io", 2) == 0){
+                    class_t *cls;
+
+                    cls = library_io(clspar, code);
+                    library_file(cls, code);
+                    library_keyboard(cls, code);
+
+                    c = c->next;
+                    token = (token_t *) c->value;
+
+                    if(token->key != TOKEN_SEMICOLON){
+                        parser_error(token, "import, end by semicolon!");
+                    }
+
+                    c = c->next;
+                    token = (token_t *) c->value;
+                    continue;
+                }
+                else
+                if(strncmp((char *)token->value, "file", 4) == 0){
+                    library_file(clspar, code);
+
+                    c = c->next;
+                    token = (token_t *) c->value;
+
+                    if(token->key != TOKEN_SEMICOLON){
+                        parser_error(token, "import, end by semicolon!");
+                    }
+
+                    c = c->next;
+                    token = (token_t *) c->value;
+                    continue;
+                }
+                else
+                if(strncmp((char *)token->value, "keyboard", 8) == 0){
+                    library_keyboard(clspar, code);
+
+                    c = c->next;
+                    token = (token_t *) c->value;
+
+                    if(token->key != TOKEN_SEMICOLON){
+                        parser_error(token, "import, end by semicolon!");
+                    }
+
+                    c = c->next;
+                    token = (token_t *) c->value;
+                    continue;
+                }
+                else
+                if(strncmp((char *)token->value, "time", 4) == 0){
+                    library_time(clspar, code);
+
+                    c = c->next;
+                    token = (token_t *) c->value;
+
+                    if(token->key != TOKEN_SEMICOLON){
+                        parser_error(token, "import, end by semicolon!");
+                    }
+
+                    c = c->next;
+                    token = (token_t *) c->value;
+                    continue;
+                }
+
+                parser_error(token, "import, class not found!");
+            } else
+            if(token->key == TOKEN_DATA){
+                FILE *fd;
+                char destination [ MAX_PATH ];
+
+                char *str_value = (char *)token->value;
+
+                #ifdef WIN32
+                	if(*str_value != '\\'){
+                #else
+                	if(*str_value != '/'){
+                #endif
+
+                    char cwd[MAX_PATH];
+                    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+                        perror("getcwd() error");
+                        exit(-1);
+                    }
+
+                    utils_combine ( destination, cwd, str_value );
+                } else {
+                    strcpy(destination, str_value);
+                }
+
+                if (!(fd = fopen(destination, "rb"))) {
+                    if (!(fd = fopen(str_value, "rb"))) {
+                        printf("could not open(%s)\n", str_value);
+                        exit(-1);
+                    }
+                }
+
+                c = c->next;
+                token = (token_t *) c->value;
+
+                // Current position
+                long64_t pos = ftell(fd);
+                // Go to end
+                fseek(fd, 0, SEEK_END);
+                // read the position which is the size
+                long64_t chunk = ftell(fd);
+                // restore original position
+                fseek(fd, pos, SEEK_SET);
+
+                char *buf;
+                if (!(buf = malloc(chunk + 1))) {
+                    printf("could not malloc(%lld) for buf area\n", chunk);
+                    exit(-1);
+                }
+
+                long64_t i;
+                // read the source file
+                if ((i = fread(buf, 1, chunk, fd)) < chunk) {
+                    printf("read returned %lld\n", i);
+                    exit(-1);
+                }
+
+                buf[i] = '\0';
+
+                fclose(fd);
+
+                table_t *tbl = table_create();
+                lexer(tbl, buf);
+
+                c->next->previous = tbl->end->previous;
+                tbl->end->previous->next = c->next;
+
+                c->next = tbl->begin;
+                tbl->begin->previous = c;
+
+                c = c->next;
+                token = (token_t *) c->value;
+                continue;
+            }
+
+            parser_error(token, "import, bad definition!");
         }
 
         break;
@@ -3810,6 +3505,7 @@ parser(table_t *tls, long64_t argc, char **argv, array_t *code)
     iarray_t *jmp = array_rpush(code, 0);
 
     clscur->start = array_rpush(code, CENT);
+
 
     c = tls->begin;
     while( c && c != tls->end ){

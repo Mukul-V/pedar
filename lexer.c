@@ -610,67 +610,7 @@ lexer(table_t *ls, const char *source)
                     lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
                 }
                 continue;
-            } else if(strncmp(source + pos2, "__open__", 8) == 0){
-                if(table_rpush(ls, (value_p)token_create(TOKEN_OPEN,0,pos2,row,col-(pos-pos2))) == nullptr){
-                    lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
-                }
-                continue;
-            } else if(strncmp(source + pos2, "__read__", 8) == 0){
-                if(table_rpush(ls, (value_p)token_create(TOKEN_READ,0,pos2,row,col-(pos-pos2))) == nullptr){
-                    lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
-                }
-                continue;
-            } else if(strncmp(source + pos2, "__seek__", 8) == 0){
-                if(table_rpush(ls, (value_p)token_create(TOKEN_SEEK,0,pos2,row,col-(pos-pos2))) == nullptr){
-                    lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
-                }
-                continue;
-            } else if(strncmp(source + pos2, "__write__", 9) == 0){
-                if(table_rpush(ls, (value_p)token_create(TOKEN_WRITE,0,pos2,row,col-(pos-pos2))) == nullptr){
-                    lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
-                }
-                continue;
-            } else if(strncmp(source + pos2, "__close__", 9) == 0){
-                if(table_rpush(ls, (value_p)token_create(TOKEN_CLOSE,0,pos2,row,col-(pos-pos2))) == nullptr){
-                    lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
-                }
-                continue;
-            } else if(strncmp(source + pos2, "rename", 6) == 0){
-                if(table_rpush(ls, (value_p)token_create(TOKEN_RENAME,0,pos2,row,col-(pos-pos2))) == nullptr){
-                    lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
-                }
-                continue;
-            } else if(strncmp(source + pos2, "cwd", 3) == 0){
-                if(table_rpush(ls, (value_p)token_create(TOKEN_CWD,0,pos2,row,col-(pos-pos2))) == nullptr){
-                    lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
-                }
-                continue;
-            } else if(strncmp(source + pos2, "chdir", 5) == 0){
-                if(table_rpush(ls, (value_p)token_create(TOKEN_CHDIR,0,pos2,row,col-(pos-pos2))) == nullptr){
-                    lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
-                }
-                continue;
-            } else if(strncmp(source + pos2, "getkey", 6) == 0){
-                if(table_rpush(ls, (value_p)token_create(TOKEN_GETKEY,0,pos2,row,col-(pos-pos2))) == nullptr){
-                    lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
-                }
-                continue;
-            } else if(strncmp(source + pos2, "gets", 4) == 0){
-                if(table_rpush(ls, (value_p)token_create(TOKEN_GETS,0,pos2,row,col-(pos-pos2))) == nullptr){
-                    lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
-                }
-                continue;
-            } else if(strncmp(source + pos2, "tick", 4) == 0){
-                if(table_rpush(ls, (value_p)token_create(TOKEN_TICK,0,pos2,row,col-(pos-pos2))) == nullptr){
-                    lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
-                }
-                continue;
-            } else if(strncmp(source + pos2, "time", 4) == 0){
-                if(table_rpush(ls, (value_p)token_create(TOKEN_TIME,0,pos2,row,col-(pos-pos2))) == nullptr){
-                    lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
-                }
-                continue;
-            }
+            } 
 
             char *var = malloc(sizeof(char) * (pos - pos2));
             strncpy(var, source + pos2, pos - pos2);
