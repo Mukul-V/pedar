@@ -251,32 +251,6 @@ class_name {
 }
 ```
 
-## time
-This function returns the time since 00:00:00 UTC, January 1, 1970 (Unix timestamp) in seconds.
-```dart
-t = time();
-```
-## tick
-What is Tick?
-Time intervals are floating-point numbers in units of seconds. Particular instants in time are expressed in seconds since 12:00am, January 1, 1970(epoch).
-
-```dart
-t = tick();
-```
-## rename
-rename a file
-    rename(old_path, new_path);
-
-## cwd
-return current dirrectory path
-    cwd();
-
-## chdir
-change current directory path
-
-## gets
-## getc
-
 # Build Instructions
     make
     make test
