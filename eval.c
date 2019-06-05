@@ -618,9 +618,9 @@ data_to(table_t *tbl)
 }
 
 table_t *
-data_format(table_t *tbl, table_t *format, table_t *tbres)
+data_format(table_t *tbl, table_t *format, table_t *formated)
 {
-	itable_t *t = tbl->begin, *f = format->begin;
+	itable_t *t = tbl->begin, *f;
 	object_t *esp, *obj;
 
     while( t != tbl->end ){
@@ -635,7 +635,7 @@ data_format(table_t *tbl, table_t *format, table_t *tbres)
                 }
                 esp->type = TP_CHAR;
                 esp->num = (char)STR_NULL[i];
-				table_rpush(tbres, (value_p)esp);
+				table_rpush(formated, (value_p)esp);
 			}
 			if(!(esp = OBJECT_MALLOC(char))){
 				printf("object, bad memory!\n");
@@ -643,7 +643,7 @@ data_format(table_t *tbl, table_t *format, table_t *tbres)
 			}
 			esp->type = TP_CHAR;
 			esp->num = ' ';
-			table_rpush(tbres, (value_p)esp);
+			table_rpush(formated, (value_p)esp);
             t = t->next;
             continue;
         }
@@ -656,13 +656,13 @@ data_format(table_t *tbl, table_t *format, table_t *tbres)
 				obj = (object_t *)t->value;
 
 				if(obj->num == 's'){
+					f = table_rpop(format);
 					obj = (object_t *)f->value;
-					f = f->next;
 					if(obj->type != TP_DATA){
 						printf("%%s must be input string data!\n");
 						exit(-1);
 					}
-					data_format((table_t *)obj->ptr, format, tbres);
+					data_format((table_t *)obj->ptr, format, formated);
 					t = t->next;
 					continue;
 				}
@@ -686,8 +686,8 @@ data_format(table_t *tbl, table_t *format, table_t *tbres)
 				}
 
 				if(obj->num == 'n'){
+					f = table_rpop(format);
 					obj = (object_t *)f->value;
-					f = f->next;
 
 					char *fmt = MALLOC(sizeof(char) * 255);
 					sprintf(fmt, "%%.%lldf", num);
@@ -710,7 +710,7 @@ data_format(table_t *tbl, table_t *format, table_t *tbres)
 						}
 						esp->type = TP_CHAR;
 						esp->num = (char)str_num[i];
-						table_rpush(tbres, (value_p)esp);
+						table_rpush(formated, (value_p)esp);
 					}
 
 					FREE(str_num);
@@ -725,7 +725,7 @@ data_format(table_t *tbl, table_t *format, table_t *tbres)
 				}
 				esp->type = TP_CHAR;
 				esp->num = obj->num;
-				table_rpush(tbres, (value_p)esp);
+				table_rpush(formated, (value_p)esp);
 
 				t = t->next;
 				continue;
@@ -737,7 +737,7 @@ data_format(table_t *tbl, table_t *format, table_t *tbres)
 			}
 			esp->type = TP_CHAR;
 			esp->num = obj->num;
-			table_rpush(tbres, (value_p)esp);
+			table_rpush(formated, (value_p)esp);
 			t = t->next;
 			continue;
 		}
@@ -752,7 +752,7 @@ data_format(table_t *tbl, table_t *format, table_t *tbres)
 				}
 				esp->type = TP_CHAR;
 				esp->num = (char)cls->key[i];
-				table_rpush(tbres, (value_p)esp);
+				table_rpush(formated, (value_p)esp);
 			}
 			if(!(esp = OBJECT_MALLOC(char))){
 				printf("object, bad memory!\n");
@@ -760,7 +760,7 @@ data_format(table_t *tbl, table_t *format, table_t *tbres)
 			}
 			esp->type = TP_CHAR;
 			esp->num = ' ';
-			table_rpush(tbres, (value_p)esp);
+			table_rpush(formated, (value_p)esp);
 			t = t->next;
 			continue;
 		}
@@ -781,7 +781,7 @@ data_format(table_t *tbl, table_t *format, table_t *tbres)
 				}
 				esp->type = TP_CHAR;
 				esp->num = (char)str_num[i];
-				table_rpush(tbres, (value_p)esp);
+				table_rpush(formated, (value_p)esp);
 			}
 
 			FREE(str_num);
@@ -792,13 +792,13 @@ data_format(table_t *tbl, table_t *format, table_t *tbres)
 			}
 			esp->type = TP_CHAR;
 			esp->num = ' ';
-			table_rpush(tbres, (value_p)esp);
+			table_rpush(formated, (value_p)esp);
 			t = t->next;
 			continue;
 		}
 		else
 		if(obj->type == TP_DATA){
-			data_format((table_t *)obj->ptr, format, tbres);
+			data_format((table_t *)obj->ptr, format, formated);
 			t = t->next;
 			continue;
 		}
@@ -807,7 +807,7 @@ data_format(table_t *tbl, table_t *format, table_t *tbres)
 		exit(-1);
 	}
 
-	return tbres;
+	return formated;
 }
 
 void
@@ -3488,147 +3488,147 @@ eval(class_t *base, array_t *code)
 		}
 
         else if (op == PRTF){
-            c = c->next;
-            table_t *parameters = table_create();
-
-            long64_t i;
-            for(i = 0; i < c->value; i++){
-                rp = table_rpop(frame);
-                if(!(esp = (object_t *)rp->value)){
-                    printf("eval: bad pop stack.\n");
-                    exit(-1);
-                }
-                table_lpush(parameters, (value_p)esp);
-            }
+			table_t *parameters = table_create();
 
 			rp = table_rpop(frame);
-			if(!(eax = (object_t *)rp->value)){
-				printf("eval: bad pop stack.\n");
-				exit(-1);
-			}
+			esp = (object_t *)rp->value;
 
-			if(eax->type == TP_NULL){
-				printf("%s ", STR_NULL);
-				c = c->next;
-	            continue;
-			}
-			else if(eax->type == TP_DATA){
-				table_t *formated;
-				if(i > 0){
-					formated = table_create();
-					data_format((table_t *)eax->ptr, parameters, formated);
+            long64_t i, cnt = esp->num;
+
+            for(i = 0; i < cnt; i++){
+                rp = table_rpop(frame);
+                table_rpush(parameters, (value_p)rp->value);
+            }
+
+			while((rp = table_rpop(parameters))){
+				if(!(esp = (object_t *)rp->value)){
+					printf("eval: bad pop stack.\n");
+					exit(-1);
+				}
+
+				if(esp->type == TP_NULL){
+					printf("%s ", STR_NULL);
+		            continue;
+				}
+				else if(esp->type == TP_DATA){
+					table_t *formated;
+					if(i > 0){
+						formated = table_create();
+						data_format((table_t *)esp->ptr, parameters, formated);
+					}
+					else {
+						formated = (table_t *)esp->ptr;
+					}
+
+					itable_t *t;
+					while((t = table_lpop(formated))){
+						object_t *obj = (object_t *)t->value;
+						if(obj->type != TP_CHAR){
+							printf("formated string must created of chars!\n");
+				            exit(-1);
+						}
+
+						if(obj->num == '\\'){
+							object_delete(obj);
+
+							t = table_lpop(formated);
+							obj = (object_t *)t->value;
+
+							if(obj->num == 'n'){
+								printf("\n");
+								continue;
+							}
+							else
+							if(obj->num == 't'){
+								printf("\t");
+								continue;
+							}
+							else
+							if(obj->num == 'v'){
+								printf("\v");
+								continue;
+							}
+
+							printf("\\");
+							continue;
+						}
+
+						printf("%c", (char)obj->num);
+						object_delete(obj);
+					}
+
+		            continue;
+				}
+				else if(esp->type == TP_CHAR){
+					printf("%c", (char)esp->num);
+		            continue;
+				}
+				else if(esp->type == TP_NUMBER){
+					if((esp->num - (long64_t)esp->num) != 0){
+						printf("%.16f", esp->num);
+					}else{
+						printf("%lld", (long64_t)esp->num);
+					}
+		            continue;
+				}
+				else if(esp->type == TP_CLASS){
+					class_t *cls = (class_t *)esp->ptr;
+					printf("%s", cls->key);
+		            continue;
 				}
 				else {
-					formated = (table_t *)eax->ptr;
+					printf("%.16f", esp->num);
 				}
-
-				itable_t *t = formated->begin;
-				while( t != formated->end ){
-					object_t *obj = (object_t *)t->value;
-					if(obj->type != TP_CHAR){
-						printf("formated string must created of chars!\n");
-			            exit(-1);
-					}
-
-					if(obj->num == '\\'){
-						t = t->next;
-						obj = (object_t *)t->value;
-
-						if(obj->num == 'n'){
-							printf("\n");
-							t = t->next;
-							continue;
-						}
-						else
-						if(obj->num == 't'){
-							printf("\t");
-							t = t->next;
-							continue;
-						}
-						else
-						if(obj->num == 'v'){
-							printf("\v");
-							t = t->next;
-							continue;
-						}
-
-						printf("\\");
-						t = t->next;
-						continue;
-					}
-
-					printf("%c", (char)obj->num);
-					t = t->next;
-				}
-
-				if(i > 0){
-					data_delete(formated);
-				}
-
-				c = c->next;
-	            continue;
-			}
-			else if(eax->type == TP_CHAR){
-				printf("%c", (char)eax->num);
-				c = c->next;
-	            continue;
-			}
-			else if(eax->type == TP_NUMBER){
-				if((eax->num - (long64_t)eax->num) != 0){
-					printf("%.16f", eax->num);
-				}else{
-					printf("%lld", (long64_t)eax->num);
-				}
-				c = c->next;
-	            continue;
-			}
-			else if(eax->type == TP_CLASS){
-				class_t *cls = (class_t *)eax->ptr;
-				printf("%s", cls->key);
-				c = c->next;
-	            continue;
-			}
-			else {
-				printf("%.16f", eax->num);
 			}
 
             c = c->next;
             continue;
         }
 		else if (op == FORMAT){
-			c = c->next;
-            table_t *parameters = table_create();
-
-            long64_t i;
-            for(i = 0; i < c->value; i++){
-                rp = table_rpop(frame);
-                if(!(esp = (object_t *)rp->value)){
-                    printf("eval: bad pop stack.\n");
-                    exit(-1);
-                }
-                table_lpush(parameters, (value_p)esp);
-            }
+			table_t *parameters = table_create();
 
 			rp = table_rpop(frame);
-			if(!(eax = (object_t *)rp->value)){
-				printf("eval: bad pop stack.\n");
-				exit(-1);
-			}
+			esp = (object_t *)rp->value;
 
-			if(eax->type != TP_DATA){
-				printf("first parameter of format not a string!\n");
-				exit(-1);
-			}
+			long64_t i, cnt = esp->num;
 
-			table_t *formated = table_create();
-			data_format((table_t *)eax->ptr, parameters, formated);
+            for(i = 0; i < cnt; i++){
+                rp = table_rpop(frame);
+                table_rpush(parameters, (value_p)rp->value);
+            }
+
+			table_t *data = table_create();
+
+			while((rp = table_rpop(parameters))){
+				if(!(esp = (object_t *)rp->value)){
+					printf("eval: bad pop stack.\n");
+					exit(-1);
+				}
+
+				if(esp->type != TP_DATA){
+					table_rpush(data, (value_p)esp);
+					continue;
+				}
+
+				table_t *formated = table_create();
+				data_format((table_t *)esp->ptr, parameters, formated);
+
+				if(!(eax = OBJECT_MALLOC(void *))){
+					printf("object, bad memory!\n");
+					exit(-1);
+				}
+				eax->type = TP_DATA;
+				eax->ptr = formated;
+
+				table_rpush(data, (value_p)eax);
+			}
 
 			if(!(eax = OBJECT_MALLOC(void *))){
 				printf("object, bad memory!\n");
 				exit(-1);
 			}
 			eax->type = TP_DATA;
-			eax->ptr = formated;
+			eax->ptr = data;
 
 			c = c->next;
             continue;

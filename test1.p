@@ -40,10 +40,6 @@ main(){
 
     print("%s %n\n", list, list.count());
 
-    print("what's your name?\n");
-    input = keyboard.gets(100);
-    print("%s", input);
-
     fls = file.walk("libs");
 
     i = 0;

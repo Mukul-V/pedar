@@ -650,8 +650,12 @@ expression(table_t *tls, itable_t *c, array_t *code)
                 }
             }
 
+            array_rpush(code, IMM);
+            array_rpush(code, i);
+            array_rpush(code, TP_IMM);
+            array_rpush(code, PUSH);
+
             array_rpush(code, PRTF);
-            array_rpush(code, i - 1);
 
             if(token->key != TOKEN_RPAREN){
                 parser_error(token, "print must end to ')'!");
@@ -687,8 +691,12 @@ expression(table_t *tls, itable_t *c, array_t *code)
                 }
             }
 
+            array_rpush(code, IMM);
+            array_rpush(code, i);
+            array_rpush(code, TP_IMM);
+            array_rpush(code, PUSH);
+
             array_rpush(code, FORMAT);
-            array_rpush(code, i - 1);
 
             if(token->key != TOKEN_RPAREN){
                 parser_error(token, "format must end to ')'!");

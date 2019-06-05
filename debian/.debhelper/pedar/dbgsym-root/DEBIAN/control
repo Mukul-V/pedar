@@ -10,4 +10,4 @@ Depends: pedar (= 1.0.0-1)
 Section: debug
 Priority: optional
 Description: debug symbols for pedar
-Build-Ids: ef4763a7e3b291e556363f89ada8f8e0f795f6ec
+Build-Ids: 311f24e823f14e5753b7edbca41b7e0b0dbdca91
