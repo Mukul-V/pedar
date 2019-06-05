@@ -10,6 +10,7 @@ main(){
     f = file.open("help.chw", 'r');
 
     print("open file by fd %n\n", f.fd);
+    print("type of f %s\n", typeof(f));
 
     buf = f.read(f.length());
     print("%s\n", buf);
@@ -37,7 +38,7 @@ main(){
     list = [0,10,20,30,40,50,60,70,80,90];
     delete(list, 1, 2, 3, 4, 5, 6, 7);
 
-    print("%s %n\n", list, count(list));
+    print("%s %n\n", list, list.count());
 
     print("what's your name?\n");
     input = keyboard.gets(100);

@@ -1,4 +1,4 @@
-# Pedar Programming Language
+# The Pedar Programming Language
 GNU General Public License v3.0
 (version 1.0.0 alpha 1)
 
@@ -292,7 +292,8 @@ class_name {
     - get()
 
 
-# contact us
+# The Author
+    Pedar was originally developed by Yasser Sajjadi (Ys) in 2019.
         Email: yassersajjadi@gmail.com
 
 # License

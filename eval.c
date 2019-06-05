@@ -883,6 +883,7 @@ eval(class_t *base, array_t *code)
     class_t *ecx = nullptr;
 
     object_t *eax = nullptr;
+	object_t *esx = nullptr;
     object_t *esp = nullptr;
 
 	table_t *stack_ebx = table_create();
@@ -2616,6 +2617,7 @@ eval(class_t *base, array_t *code)
 
         else if (op == VAR){
             c = c->next;
+
             if(ecx){
 				class_t *rbx = nullptr;
 				if((rbx = class_find(ecx, (char *)c->value))){
@@ -2689,6 +2691,7 @@ eval(class_t *base, array_t *code)
             // load immediate value to eax
             c = c->next;
             eax = nullptr;
+
             iarray_t *next = c->next;
 
             if(next->value == TP_NULL){
@@ -3117,6 +3120,7 @@ eval(class_t *base, array_t *code)
             continue;
         }
         else if (op == CHG){
+			esx = eax;
 			if(eax->type == TP_CLASS){
 				if((ecx = (class_t *)eax->ptr)){
 					table_rpush(stack_ecx, (value_p)ecx);
@@ -3142,7 +3146,7 @@ eval(class_t *base, array_t *code)
             continue;
         }
         else if (op == SIZEOF){
-            if(eax->type == TP_NULL){
+			if(eax->type == TP_NULL){
                 object_t *obj;
                 if(!(obj = OBJECT_MALLOC(double))){
                     printf("object, bad memory!\n");
@@ -3154,7 +3158,7 @@ eval(class_t *base, array_t *code)
                 c = c->next;
                 continue;
             }
-			else if(eax->type == TP_CHAR){
+			if(eax->type == TP_CHAR){
                 object_t *obj;
                 if(!(obj = OBJECT_MALLOC(double))){
                     printf("object, bad memory!\n");
@@ -3166,7 +3170,7 @@ eval(class_t *base, array_t *code)
                 c = c->next;
                 continue;
             }
-			else if(eax->type == TP_NUMBER){
+			if(eax->type == TP_NUMBER){
                 object_t *obj;
                 if(!(obj = OBJECT_MALLOC(double))){
                     printf("object, bad memory!\n");
@@ -3178,7 +3182,7 @@ eval(class_t *base, array_t *code)
                 c = c->next;
                 continue;
             }
-            else if(eax->type == TP_DATA){
+            if(eax->type == TP_DATA){
                 object_t *obj;
                 if(!(obj = OBJECT_MALLOC(double))){
                     printf("object, bad memory!\n");
@@ -3190,7 +3194,7 @@ eval(class_t *base, array_t *code)
                 c = c->next;
                 continue;
             }
-            else if(eax->type == TP_CLASS){
+            if(eax->type == TP_CLASS){
                 table_rpush(stack_efx, (value_p)efx);
 
                 if(!(efx = function_get((class_t *)eax->ptr , "sizeof",1, FN_PAREN))){
@@ -3236,7 +3240,7 @@ eval(class_t *base, array_t *code)
                 c = c->next;
                 continue;
             }
-            else if(eax->type == TP_CHAR){
+            if(eax->type == TP_CHAR){
                 object_t *obj;
                 if(!(obj = OBJECT_MALLOC(double))){
                     printf("object, bad memory!\n");
@@ -3248,7 +3252,7 @@ eval(class_t *base, array_t *code)
                 c = c->next;
                 continue;
             }
-            else if(eax->type == TP_NUMBER){
+            if(eax->type == TP_NUMBER){
                 object_t *obj;
                 if(!(obj = OBJECT_MALLOC(double))){
                     printf("object, bad memory!\n");
@@ -3260,7 +3264,7 @@ eval(class_t *base, array_t *code)
                 c = c->next;
                 continue;
             }
-            else if(eax->type == TP_DATA){
+            if(eax->type == TP_DATA){
                 object_t *obj;
                 if(!(obj = OBJECT_MALLOC(double))){
                     printf("object, bad memory!\n");
@@ -3272,7 +3276,7 @@ eval(class_t *base, array_t *code)
                 c = c->next;
                 continue;
             }
-            else if(eax->type == TP_CLASS){
+            if(eax->type == TP_CLASS){
                 object_t *obj;
                 if(!(obj = OBJECT_MALLOC(double))){
                     printf("object, bad memory!\n");
@@ -3289,11 +3293,18 @@ eval(class_t *base, array_t *code)
             exit(-1);
         }
         else if (op == DELETE){
-            c = c->next;
-
 			table_t *newframe = table_create();
-			long64_t i;
-			for(i = 0; i < c->value; i++){
+
+			rp = table_rpop(frame);
+			esp = (object_t *)rp->value;
+
+			if(esp->type != TP_NUMBER){
+				printf("delete, parameters!\n");
+	            exit(-1);
+			}
+
+			long64_t i, cnt = esp->num;
+			for(i = 0; i < cnt; i++){
 				rp = table_rpop(frame);
 				table_rpush(newframe, rp->value);
 			}
@@ -3475,7 +3486,6 @@ eval(class_t *base, array_t *code)
 			c = c->next;
             continue;
 		}
-
 
         else if (op == PRTF){
             c = c->next;

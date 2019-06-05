@@ -421,17 +421,15 @@ expression(table_t *tls, itable_t *c, array_t *code)
             c = c->next;
             token = (token_t *) c->value;
 
-            while(token->key != TOKEN_RPAREN){
+            if(token->key != TOKEN_RPAREN){
                 c = expression(tls, c, code);
                 token = (token_t *) c->value;
-                if(token->key == TOKEN_COMMA){
-                    parser_error(token, "expression in 'typeof' only accept one variable!");
-                }
-                if(token->key != TOKEN_RPAREN){
-                    c = c->next;
-                    token = (token_t *) c->value;
-                }
             }
+
+            if(token->key != TOKEN_RPAREN){
+                parser_error(token, "expression in 'sizeof' must end with ')'!");
+            }
+
             array_rpush(code, SIZEOF);
 
             c = c->next;
@@ -448,17 +446,15 @@ expression(table_t *tls, itable_t *c, array_t *code)
             c = c->next;
             token = (token_t *) c->value;
 
-            while(token->key != TOKEN_RPAREN){
+            if(token->key != TOKEN_RPAREN){
                 c = expression(tls, c, code);
                 token = (token_t *) c->value;
-                if(token->key == TOKEN_COMMA){
-                    parser_error(token, "expression in 'count' only accept one variable!");
-                }
-                if(token->key != TOKEN_RPAREN){
-                    c = c->next;
-                    token = (token_t *) c->value;
-                }
             }
+
+            if(token->key != TOKEN_RPAREN){
+                parser_error(token, "expression in 'count' must end with ')'!");
+            }
+
             array_rpush(code, COUNT);
 
             c = c->next;
@@ -475,17 +471,15 @@ expression(table_t *tls, itable_t *c, array_t *code)
             c = c->next;
             token = (token_t *) c->value;
 
-            while(token->key != TOKEN_RPAREN){
+            if(token->key != TOKEN_RPAREN){
                 c = expression(tls, c, code);
                 token = (token_t *) c->value;
-                if(token->key == TOKEN_COMMA){
-                    parser_error(token, "expression in 'typeof' only accept one variable!");
-                }
-                if(token->key != TOKEN_RPAREN){
-                    c = c->next;
-                    token = (token_t *) c->value;
-                }
             }
+
+            if(token->key != TOKEN_RPAREN){
+                parser_error(token, "expression in 'typeof' must end with ')'!");
+            }
+
             array_rpush(code, TYPEOF);
 
             c = c->next;
@@ -718,16 +712,20 @@ expression(table_t *tls, itable_t *c, array_t *code)
             while(token->key != TOKEN_RPAREN){
                 c = expression(tls, c, code);
                 array_rpush(code, PUSH);
-                token = (token_t *) c->value;
                 i++;
+                token = (token_t *) c->value;
                 if(token->key != TOKEN_RPAREN){
                     c = c->next;
                     token = (token_t *) c->value;
                 }
             }
 
-            array_rpush(code, DELETE);
+            array_rpush(code, IMM);
             array_rpush(code, i - 1);
+            array_rpush(code, TP_IMM);
+            array_rpush(code, PUSH);
+
+            array_rpush(code, DELETE);
 
             c = c->next;
             token = (token_t *) c->value;
