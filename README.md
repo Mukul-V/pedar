@@ -15,6 +15,8 @@ import ('io', 'time');
 main(){
     print("Hello World!\n");
 
+    print("string is %s and number is %.5n \n", 'hello world!', 3.14, 'format %n\n', 2);
+
     file = io.file;
     keyboard = io.keyboard;
 
