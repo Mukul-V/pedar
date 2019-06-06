@@ -45,6 +45,9 @@ void
 table_destroy(table_t *tbl, key_t (*f)(itable_t*));
 
 itable_t*
+table_link(table_t *tbl, itable_t *current, itable_t *it);
+
+itable_t*
 table_unlink(table_t *tbl, itable_t* it);
 
 itable_t*
@@ -66,7 +69,7 @@ itable_t *
 table_lpush(table_t *tbl, value_p value);
 
 itable_t *
-table_insert(table_t *tbl, key_t n, value_p value);
+table_insert(table_t *tbl, itable_t *current, value_p value);
 
 key_t
 table_null(table_t *tbl);

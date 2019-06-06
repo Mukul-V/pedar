@@ -66,6 +66,7 @@ enum
   TOKEN_COUNT,
   TOKEN_NULL,
   TOKEN_REF,
+  TOKEN_INSERT,
 
   // system function
   TOKEN_FORMAT,

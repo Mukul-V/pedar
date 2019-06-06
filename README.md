@@ -196,6 +196,11 @@ using 'delete' for delete a variable or, remove items of a list, for example
 list = [1,2,3];
 delete(list, 0, 1);
 ```
+## insert
+using 'insert' for insert value in a list, for example;
+```dart
+insert(list, index, values ...);
+```
 
 ## count
 using 'count' for count items in list, for example

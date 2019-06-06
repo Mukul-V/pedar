@@ -37,6 +37,7 @@ main(){
     print("type of fmt %s\n", typeof(fmt));
 
     list = [0,10,20,30,40,50,60,70,80,90];
+    insert(list, 1, 300);
     delete(list, 1, 2, 3, 4, 5, 6, 7);
 
     print("%s %n\n", list, list.count());

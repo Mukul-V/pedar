@@ -77,9 +77,10 @@ enum
 	SIZEOF,
 	TYPEOF,
 	DELETE,
+	INSERT,
 	DATA,
 	COUNT,
-	SVBR, // 50
+	SVBR, // 51
 	SVPA,
 	RAR,
 	REF,

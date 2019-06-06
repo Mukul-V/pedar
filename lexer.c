@@ -610,7 +610,12 @@ lexer(table_t *ls, const char *source)
                     lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
                 }
                 continue;
-            } 
+            } else if(strncmp(source + pos2, "insert", 6) == 0){
+                if(table_rpush(ls, (value_p)token_create(TOKEN_INSERT,0,pos2,row,col-(pos-pos2))) == nullptr){
+                    lexer_error(source, pos, row, col-(pos-pos2), "not append data!");
+                }
+                continue;
+            }
 
             char *var = malloc(sizeof(char) * (pos - pos2));
             strncpy(var, source + pos2, pos - pos2);

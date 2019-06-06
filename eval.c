@@ -3345,6 +3345,53 @@ eval(class_t *base, array_t *code)
             c = c->next;
             continue;
         }
+		else if (op == INSERT){
+			table_t *newframe = table_create();
+
+			rp = table_rpop(frame);
+			esp = (object_t *)rp->value;
+
+			if(esp->type != TP_NUMBER){
+				printf("insert, parameters!\n");
+	            exit(-1);
+			}
+
+			long64_t i, cnt = esp->num;
+			for(i = 0; i < cnt; i++){
+				rp = table_rpop(frame);
+				table_rpush(newframe, rp->value);
+			}
+
+			rp = table_rpop(frame);
+			esp = (object_t *)rp->value;
+
+			if(esp->type != TP_DATA){
+				printf("insert, first paramater should be a array data!\n");
+	            exit(-1);
+			}
+
+			table_t *tbl = (table_t *)esp->ptr;
+
+			rp = table_rpop(newframe);
+			esp = (object_t *)rp->value;
+
+			if(esp->type != TP_NUMBER){
+				printf("insert, two paramater should be index of array!\n");
+				exit(-1);
+			}
+
+			i = esp->num;
+			i = (i < 0) ? 0 : i;
+
+			itable_t *t = table_at(tbl, i);
+
+			while((rp = table_rpop(newframe))){
+				t = table_insert(tbl, t, rp->value);
+			}
+
+            c = c->next;
+            continue;
+        }
         else if (op == COUNT){
 			if(eax->type == TP_NULL){
                 object_t *obj;

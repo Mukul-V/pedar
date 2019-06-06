@@ -739,6 +739,40 @@ expression(table_t *tls, itable_t *c, array_t *code)
             token = (token_t *) c->value;
 
             continue;
+        } else if(token->key == TOKEN_INSERT){
+            c = c->next;
+            token = (token_t *) c->value;
+
+            if(token->key != TOKEN_LPAREN){
+                parser_error(token, "expression in 'insert' must start with '('!");
+            }
+
+            c = c->next;
+            token = (token_t *) c->value;
+
+            long64_t i = 0;
+            while(token->key != TOKEN_RPAREN){
+                c = expression(tls, c, code);
+                array_rpush(code, PUSH);
+                i++;
+                token = (token_t *) c->value;
+                if(token->key != TOKEN_RPAREN){
+                    c = c->next;
+                    token = (token_t *) c->value;
+                }
+            }
+
+            array_rpush(code, IMM);
+            array_rpush(code, i - 1);
+            array_rpush(code, TP_IMM);
+            array_rpush(code, PUSH);
+
+            array_rpush(code, INSERT);
+
+            c = c->next;
+            token = (token_t *) c->value;
+
+            continue;
         } else if(token->key == TOKEN_LPAREN){
             c = c->next;
             token = (token_t *) c->value;
@@ -3454,7 +3488,7 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
             }
 
             iarray_t *c2 = code->end->previous;
-            
+
             c2->next->previous = code_bytes->end->previous;
             code_bytes->end->previous->next = c2->next;
 
