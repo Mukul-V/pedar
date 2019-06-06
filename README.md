@@ -116,7 +116,7 @@ child : parent {
     this(){
         return this;
     }
-    
+
     fn2(a, b){
         return a - b;
     }
@@ -223,7 +223,7 @@ n = typeof(list);
 ## print
 using 'print' for write a string or number in console, for example
 ```dart
-print("string is %s and number is %.5n \n", 'hello world!', 3.14);
+print("string is %s and number is %.5n \n", 'hello world!', 3.14, 'format %n\n', 2);
 ```
 
 ## format
