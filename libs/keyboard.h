@@ -1,3 +1,5 @@
+#pragma once
+
 class_t *
 library_keyboard(class_t *clspar, array_t *code){
     function_t *fun;

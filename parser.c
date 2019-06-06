@@ -3332,20 +3332,28 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
             c = c->next;
             token = (token_t *) c->value;
 
-            if(token->key == TOKEN_ID){
-                if(strncmp((char *)token->value, "io", 2) == 0){
-                    class_t *cls;
+            if(token->key != TOKEN_LPAREN){
+                parser_error(token, "import, using : import('library-name or path', ...);!");
+            }
 
-                    cls = library_io(clspar, code);
-                    library_file(cls, code);
-                    library_keyboard(cls, code);
+            c = c->next;
+            token = (token_t *) c->value;
 
+            array_t *code_bytes = array_create();
+
+            while(token->key != TOKEN_RPAREN){
+                if(token->key == TOKEN_COMMA){
                     c = c->next;
                     token = (token_t *) c->value;
+                    continue;
+                }
 
-                    if(token->key != TOKEN_SEMICOLON){
-                        parser_error(token, "import, end by semicolon!");
-                    }
+                if(token->key != TOKEN_DATA){
+                    parser_error(token, "import, library-path!");
+                }
+
+                if(strncmp((char *)token->value, "io", 2) == 0){
+                    library_io(clspar, code_bytes);
 
                     c = c->next;
                     token = (token_t *) c->value;
@@ -3353,14 +3361,7 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
                 }
                 else
                 if(strncmp((char *)token->value, "file", 4) == 0){
-                    library_file(clspar, code);
-
-                    c = c->next;
-                    token = (token_t *) c->value;
-
-                    if(token->key != TOKEN_SEMICOLON){
-                        parser_error(token, "import, end by semicolon!");
-                    }
+                    library_file(clspar, code_bytes);
 
                     c = c->next;
                     token = (token_t *) c->value;
@@ -3368,14 +3369,7 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
                 }
                 else
                 if(strncmp((char *)token->value, "keyboard", 8) == 0){
-                    library_keyboard(clspar, code);
-
-                    c = c->next;
-                    token = (token_t *) c->value;
-
-                    if(token->key != TOKEN_SEMICOLON){
-                        parser_error(token, "import, end by semicolon!");
-                    }
+                    library_keyboard(clspar, code_bytes);
 
                     c = c->next;
                     token = (token_t *) c->value;
@@ -3383,13 +3377,72 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
                 }
                 else
                 if(strncmp((char *)token->value, "time", 4) == 0){
-                    library_time(clspar, code);
+                    library_time(clspar, code_bytes);
 
                     c = c->next;
                     token = (token_t *) c->value;
+                    continue;
+                }
+                else {
+                    FILE *fd;
+                    char destination [ MAX_PATH ];
 
-                    if(token->key != TOKEN_SEMICOLON){
-                        parser_error(token, "import, end by semicolon!");
+                    char *str_value = (char *)token->value;
+
+                    if(*str_value != '/'){
+                        char cwd[MAX_PATH];
+                        if (getcwd(cwd, sizeof(cwd)) == NULL) {
+                            perror("getcwd() error");
+                            exit(-1);
+                        }
+
+                        utils_combine ( destination, cwd, str_value );
+                    } else {
+                        strcpy(destination, str_value);
+                    }
+
+                    if (!(fd = fopen(destination, "rb"))) {
+                        if (!(fd = fopen(str_value, "rb"))) {
+                            printf("could not open(%s)\n", str_value);
+                            exit(-1);
+                        }
+                    }
+
+                    // Current position
+                    long64_t pos = ftell(fd);
+                    // Go to end
+                    fseek(fd, 0, SEEK_END);
+                    // read the position which is the size
+                    long64_t chunk = ftell(fd);
+                    // restore original position
+                    fseek(fd, pos, SEEK_SET);
+
+                    char *buf;
+                    if (!(buf = malloc(chunk + 1))) {
+                        printf("could not malloc(%lld) for buf area\n", chunk);
+                        exit(-1);
+                    }
+
+                    long64_t i;
+                    // read the source file
+                    if ((i = fread(buf, 1, chunk, fd)) < chunk) {
+                        printf("read returned %lld\n", i);
+                        exit(-1);
+                    }
+
+                    buf[i] = '\0';
+
+                    fclose(fd);
+
+                    table_t *tbl = table_create();
+                    lexer(tbl, buf);
+
+                    itable_t *c2 = tbl->begin;
+                    while( c2 && c2 != tbl->end ){
+                        c2 = statement(tbl, base, c2, clspar, code_bytes);
+                        if(c2 != tls->end){
+                            c2 = c2->next;
+                        }
                     }
 
                     c = c->next;
@@ -3397,83 +3450,28 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
                     continue;
                 }
 
-                parser_error(token, "import, class not found!");
-            } else
-            if(token->key == TOKEN_DATA){
-                FILE *fd;
-                char destination [ MAX_PATH ];
-
-                char *str_value = (char *)token->value;
-
-                #ifdef WIN32
-                	if(*str_value != '\\'){
-                #else
-                	if(*str_value != '/'){
-                #endif
-
-                    char cwd[MAX_PATH];
-                    if (getcwd(cwd, sizeof(cwd)) == NULL) {
-                        perror("getcwd() error");
-                        exit(-1);
-                    }
-
-                    utils_combine ( destination, cwd, str_value );
-                } else {
-                    strcpy(destination, str_value);
-                }
-
-                if (!(fd = fopen(destination, "rb"))) {
-                    if (!(fd = fopen(str_value, "rb"))) {
-                        printf("could not open(%s)\n", str_value);
-                        exit(-1);
-                    }
-                }
-
-                c = c->next;
-                token = (token_t *) c->value;
-
-                // Current position
-                long64_t pos = ftell(fd);
-                // Go to end
-                fseek(fd, 0, SEEK_END);
-                // read the position which is the size
-                long64_t chunk = ftell(fd);
-                // restore original position
-                fseek(fd, pos, SEEK_SET);
-
-                char *buf;
-                if (!(buf = malloc(chunk + 1))) {
-                    printf("could not malloc(%lld) for buf area\n", chunk);
-                    exit(-1);
-                }
-
-                long64_t i;
-                // read the source file
-                if ((i = fread(buf, 1, chunk, fd)) < chunk) {
-                    printf("read returned %lld\n", i);
-                    exit(-1);
-                }
-
-                buf[i] = '\0';
-
-                fclose(fd);
-
-                table_t *tbl = table_create();
-                lexer(tbl, buf);
-
-                c->next->previous = tbl->end->previous;
-                tbl->end->previous->next = c->next;
-
-                c->next = tbl->begin;
-                tbl->begin->previous = c;
-
-                c = c->next;
-                token = (token_t *) c->value;
-                continue;
+                parser_error(token, "import, bad definition!");
             }
 
-            parser_error(token, "import, bad definition!");
+            iarray_t *c2 = code->end->previous;
+            
+            c2->next->previous = code_bytes->end->previous;
+            code_bytes->end->previous->next = c2->next;
+
+            c2->next = code_bytes->begin;
+            code_bytes->begin->previous = c2;
+
+            c = c->next;
+            token = (token_t *) c->value;
+
+            if(token->key == TOKEN_SEMICOLON){
+                c = c->next;
+                token = (token_t *) c->value;
+            }
+
+            continue;
         }
+
 
         break;
     }

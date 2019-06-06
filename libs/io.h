@@ -1,3 +1,8 @@
+#pragma once
+
+#include "file.h"
+#include "keyboard.h"
+
 class_t *
 library_io(class_t *clspar, array_t *code){
     //function_t *fun;
@@ -24,6 +29,8 @@ library_io(class_t *clspar, array_t *code){
     clscur->start = array_rpush(code, CENT);
 
 
+    library_file(clscur, code);
+    library_keyboard(clscur, code);
 
     clscur->end = array_rpush(code, CLEV);
     cls_jmp->value = (value_t)array_rpush(code, NUL);

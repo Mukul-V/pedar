@@ -1,5 +1,4 @@
-import io;
-import time;
+import ('io', 'time');
 
 main(){
     print("Hello World!\n");

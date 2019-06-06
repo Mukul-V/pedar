@@ -652,11 +652,13 @@ data_format(table_t *tbl, table_t *format, table_t *formated)
 			long64_t num = 0;
 			if(obj->num == '%'){
 				t = t->next;
-
 				obj = (object_t *)t->value;
 
 				if(obj->num == 's'){
-					f = table_rpop(format);
+					if(!(f = table_rpop(format))){
+						printf("format, %%s require a string data!\n");
+						exit(-1);
+					}
 					obj = (object_t *)f->value;
 					if(obj->type != TP_DATA){
 						printf("%%s must be input string data!\n");
@@ -686,7 +688,11 @@ data_format(table_t *tbl, table_t *format, table_t *formated)
 				}
 
 				if(obj->num == 'n'){
-					f = table_rpop(format);
+					if(!(f = table_rpop(format))){
+						printf("format, %%n require a number!\n");
+						exit(-1);
+					}
+
 					obj = (object_t *)f->value;
 
 					char *fmt = MALLOC(sizeof(char) * 255);
@@ -883,7 +889,7 @@ eval(class_t *base, array_t *code)
     class_t *ecx = nullptr;
 
     object_t *eax = nullptr;
-	object_t *esx = nullptr;
+	// object_t *esx = nullptr;
     object_t *esp = nullptr;
 
 	table_t *stack_ebx = table_create();
@@ -2614,7 +2620,6 @@ eval(class_t *base, array_t *code)
             continue;
         }
 
-
         else if (op == VAR){
             c = c->next;
 
@@ -3120,7 +3125,6 @@ eval(class_t *base, array_t *code)
             continue;
         }
         else if (op == CHG){
-			esx = eax;
 			if(eax->type == TP_CLASS){
 				if((ecx = (class_t *)eax->ptr)){
 					table_rpush(stack_ecx, (value_p)ecx);

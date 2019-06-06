@@ -1,3 +1,5 @@
+#pragma once
+
 class_t *
 library_file(class_t *clspar, array_t *code){
 
