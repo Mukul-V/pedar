@@ -10,8 +10,7 @@ To contribute in this repo, please open a pull request from your fork of this re
 For more information on building and developing the core of Pedar.
 
 ```dart
-import io;
-import time;
+import ('io', 'time');
 
 main(){
     print("Hello World!\n");
@@ -66,8 +65,8 @@ class_name {
         return this;
     }
 
-    function(a){
-        return a;
+    fn_name(parameters){
+        return null;
     }
 }
 ```
@@ -80,8 +79,8 @@ class_name {
         return this;
     }
 
-    function(a){
-        return a;
+    fn_name(parameters){
+        return null;
     }
 }
 ```
@@ -89,7 +88,7 @@ class_name {
 ## How to use a class ?
 ```dart
 a = class_name(parameters);
-b = a.function(parameters);
+b = a.fn_name(parameters);
 ```
 
 ## How to create a list(tuple) ?
@@ -103,19 +102,21 @@ delete(a, index1, index2, index3, ...);
 The transfer of the characteristics of a class to other classes that are derived from it.
 
 ```dart
-parent{
+parent {
     this(){
         return this;
     }
+
     fn(a, b){
         return a + b;
     }
 }
 
-child : parent{
+child : parent {
     this(){
         return this;
     }
+    
     fn2(a, b){
         return a - b;
     }
@@ -126,12 +127,7 @@ child : parent{
 
 ## import
 ```dart
-import "modulus_path";
-```
-
-or
-```dart
-import 'modulus_path';
+import ('library-path', ...);
 ```
 
 ## this
