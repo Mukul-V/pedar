@@ -69,8 +69,6 @@ A Pedar program basically consists of the following parts −
     - Statements and Expressions
     - Comments
 
-
-
 # The Author
     Pedar was originally developed by Yasser Sajjadi (Ys) in 2019.
         Email: yassersajjadi@gmail.com
