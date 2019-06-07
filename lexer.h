@@ -61,12 +61,13 @@ enum
   TOKEN_ID, // class, struct, function, enum, variable
   TOKEN_WHILE,
   TOKEN_DELETE,
+  TOKEN_INSERT,
   TOKEN_SIZEOF,
   TOKEN_TYPEOF,
   TOKEN_COUNT,
   TOKEN_NULL,
   TOKEN_REF,
-  TOKEN_INSERT,
+
 
   // system function
   TOKEN_FORMAT,

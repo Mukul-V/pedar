@@ -103,7 +103,7 @@ library_file(class_t *clspar, array_t *code){
     array_rpush(code, VAR);
     array_rpush(code, (value_t)"file");
 
-    array_rpush(code, SVPA);
+    array_rpush(code, SPA);
     array_rpush(code, NEW);
 
     array_rpush(code, VAR);

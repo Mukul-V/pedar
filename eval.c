@@ -724,6 +724,82 @@ data_format(table_t *tbl, table_t *format, table_t *formated)
 					t = t->next;
 					continue;
 				}
+				else
+				if(obj->num == 'h'){
+					if(!(f = table_rpop(format))){
+						printf("format, %%n require a number!\n");
+						exit(-1);
+					}
+
+					obj = (object_t *)f->value;
+
+					char *fmt = MALLOC(sizeof(char) * 255);
+					sprintf(fmt, "%%0%lldllx", num);
+
+					char *str_num = MALLOC(sizeof(char) * 255);
+					if(((obj->num - (long64_t)obj->num) != 0) || (num > 0)){
+						sprintf(str_num, fmt, obj->num);
+					}
+					else {
+						sprintf(str_num, "%llx", (long64_t)obj->num);
+					}
+
+					FREE(fmt);
+
+					long64_t i;
+					for(i = 0; i < strlen(str_num); i++){
+						if(!(esp = OBJECT_MALLOC(char))){
+							printf("object, bad memory!\n");
+							exit(-1);
+						}
+						esp->type = TP_CHAR;
+						esp->num = (char)str_num[i];
+						table_rpush(formated, (value_p)esp);
+					}
+
+					FREE(str_num);
+
+					t = t->next;
+					continue;
+				}
+				else
+				if(obj->num == 'H'){
+					if(!(f = table_rpop(format))){
+						printf("format, %%n require a number!\n");
+						exit(-1);
+					}
+
+					obj = (object_t *)f->value;
+
+					char *fmt = MALLOC(sizeof(char) * 255);
+					sprintf(fmt, "%%0%lldllX", num);
+
+					char *str_num = MALLOC(sizeof(char) * 255);
+					if(((obj->num - (long64_t)obj->num) != 0) || (num > 0)){
+						sprintf(str_num, fmt, obj->num);
+					}
+					else {
+						sprintf(str_num, "%llX", (long64_t)obj->num);
+					}
+
+					FREE(fmt);
+
+					long64_t i;
+					for(i = 0; i < strlen(str_num); i++){
+						if(!(esp = OBJECT_MALLOC(char))){
+							printf("object, bad memory!\n");
+							exit(-1);
+						}
+						esp->type = TP_CHAR;
+						esp->num = (char)str_num[i];
+						table_rpush(formated, (value_p)esp);
+					}
+
+					FREE(str_num);
+
+					t = t->next;
+					continue;
+				}
 
 				if(!(esp = OBJECT_MALLOC(char))){
 					printf("object, bad memory!\n");
@@ -889,7 +965,6 @@ eval(class_t *base, array_t *code)
     class_t *ecx = nullptr;
 
     object_t *eax = nullptr;
-	// object_t *esx = nullptr;
     object_t *esp = nullptr;
 
 	table_t *stack_ebx = table_create();
@@ -2583,42 +2658,6 @@ eval(class_t *base, array_t *code)
             printf("[%%] operator not defined!\n");
             exit(-1);
         }
-        else if (op == RAR){
-			if(eax == nullptr){
-				printf("[->], you can use of '->' after a object!\n");
-                exit(-1);
-			}
-
-            table_rpush(stack_efx, (value_p)efx);
-
-            if(!(efx = function_get((class_t *)eax->ptr , "->",1, FN_PAREN))){
-                printf("eval: operator '->' not define in this function!\n");
-                exit(-1);
-            }
-
-            table_t *newframe = table_create();
-            table_rpush(newframe, (value_p)eax);
-
-            object_t *obj;
-
-            if(!(obj = OBJECT_MALLOC(double))){
-                printf("[->] object not defined!\n");
-                exit(-1);
-            }
-
-            obj->type = TP_NUMBER;
-            obj->num = 1;
-
-            table_rpush(newframe, (value_p)obj);
-
-            table_rpush(frame, (value_p)c->next);
-            table_rpush(stack_frame, (value_p)frame);
-
-            frame = newframe;
-
-            c = (iarray_t *)efx->start;
-            continue;
-        }
 
         else if (op == VAR){
             c = c->next;
@@ -2932,17 +2971,6 @@ eval(class_t *base, array_t *code)
           c = c->next;
           continue;
         }
-        else if (op == POP){
-          // push the value of eax onto the stack_frame
-          rp = table_rpop(frame);
-          if(!(esp = (object_t *)rp->value)){
-            printf("bad pop data!\n");
-            exit(-1);
-          }
-          eax = esp;
-          c = c->next;
-          continue;
-        }
         else if (op == JMP){
           // jump to the address
           c = c->next;
@@ -3115,7 +3143,7 @@ eval(class_t *base, array_t *code)
             c = c->next;
             continue;
         }
-        else if (op == SUPER){
+		else if (op == SUPER){
             if(!(egx = variable_get(epx->variables, epx->super->key))){
                 printf("'super' object not defined.\n");
                 exit(-1);
@@ -3445,7 +3473,7 @@ eval(class_t *base, array_t *code)
             else if(eax->type == TP_CLASS){
                 table_rpush(stack_efx, (value_p)efx);
                 if(!(efx = function_get((class_t *)eax->ptr , "count",1, FN_PAREN))){
-                    printf("eval: operator '$' not define in this function!\n");
+                    printf("function 'count' not define in this function!\n");
                     exit(-1);
                 }
 
@@ -3474,16 +3502,19 @@ eval(class_t *base, array_t *code)
             printf("eval: this type not defined.\n");
             exit(-1);
         }
-        else if (op == RST){
-            ecx = nullptr;
-            c = c->next;
-            continue;
-        }
-		else if (op == SVPA){
-            table_rpush(stack_edx, (value_p)egx);
-            c = c->next;
-            continue;
-        }
+		else if (op == BREAK){
+			iarray_t *b = c->next;
+			while(b != code->begin){
+				if(b->value == LOPE){
+					c = b;
+					break;
+				}
+				b = b->next;
+			}
+
+			c = c->next;
+			continue;
+		}
 		else if (op == NEW){
 			if(eax->type == TP_CLASS){
 				if((ecx = (class_t *)eax->ptr)){
@@ -3504,19 +3535,14 @@ eval(class_t *base, array_t *code)
 					continue;
 				}
 			}
-            c = c->next;
-            continue;
-        }
-        else if (op == SVBR){
-            table_rpush(stack_ebx, (value_p)egx);
-            c = c->next;
-            continue;
-        }
+			c = c->next;
+			continue;
+		}
 		else if (op == REF){
-            egx->value->level = LEVEL_REFRENCE;
-            c = c->next;
-            continue;
-        }
+			egx->value->level = LEVEL_REFRENCE;
+			c = c->next;
+			continue;
+		}
 		else if (op == RET){
 			if(eax){
 				eax->level = LEVEL_RESPONSE;
@@ -3524,19 +3550,22 @@ eval(class_t *base, array_t *code)
 			c = c->next;
 			continue;
 		}
-		else if (op == BREAK){
-			iarray_t *b = c->next;
-            while(b != code->begin){
-                if(b->value == LOPE){
-                    c = b;
-                    break;
-                }
-                b = b->next;
-            }
 
-			c = c->next;
+        else if (op == RST){
+            ecx = nullptr;
+            c = c->next;
             continue;
-		}
+        }
+		else if (op == SPA){
+            table_rpush(stack_edx, (value_p)egx);
+            c = c->next;
+            continue;
+        }
+        else if (op == SBR){
+            table_rpush(stack_ebx, (value_p)egx);
+            c = c->next;
+            continue;
+        }
 
         else if (op == PRTF){
 			table_t *parameters = table_create();
@@ -3597,6 +3626,16 @@ eval(class_t *base, array_t *code)
 							else
 							if(obj->num == 'v'){
 								printf("\v");
+								continue;
+							}
+							else
+							if(obj->num == 'a'){
+								printf("\a");
+								continue;
+							}
+							else
+							if(obj->num == 'b'){
+								printf("\b");
 								continue;
 							}
 

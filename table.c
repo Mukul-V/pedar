@@ -191,8 +191,7 @@ table_lpush(table_t *tbl, value_p value)
 }
 
 itable_t *
-table_insert(table_t *tbl, itable_t *current, value_p value)
-{
+table_insert(table_t *tbl, itable_t *current, value_p value){
     itable_t *it;
 
     if(!(it = (itable_t *)malloc(sizeof(*it)))) {

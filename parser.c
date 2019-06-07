@@ -77,7 +77,7 @@ expression(table_t *tls, itable_t *c, array_t *code)
             token = (token_t *) c->value;
             array_rpush(code, SUPER);
             if(token->key == TOKEN_LPAREN) {
-                array_rpush(code, SVPA);
+                array_rpush(code, SPA);
                 array_rpush(code, NEW);
 
                 /*
@@ -117,7 +117,7 @@ expression(table_t *tls, itable_t *c, array_t *code)
             token = (token_t *) c->value;
             array_rpush(code, THIS);
             if(token->key == TOKEN_LPAREN) {
-                array_rpush(code, SVPA);
+                array_rpush(code, SPA);
                 array_rpush(code, NEW);
 
                 /*
@@ -172,7 +172,7 @@ expression(table_t *tls, itable_t *c, array_t *code)
             c = c->next;
             token = (token_t *) c->value;
             if(token->key == TOKEN_LPAREN) {
-                array_rpush(code, SVPA);
+                array_rpush(code, SPA);
                 array_rpush(code, NEW);
 
                 /*
@@ -262,7 +262,6 @@ expression(table_t *tls, itable_t *c, array_t *code)
             array_rpush(code, XOR);
             continue;
         } else if(token->key == TOKEN_QUESTION){
-            array_rpush(code, PUSH);
             // expr ? expr : expr;
             array_rpush(code, JZ);
             iarray_t *a = array_rpush(code, 0);
@@ -405,10 +404,6 @@ expression(table_t *tls, itable_t *c, array_t *code)
             c = c->next;
             c = expression(tls, c, code);
             array_rpush(code, ADD);
-            continue;
-        } else if(token->key == TOKEN_MINUSGT){
-            array_rpush(code, RAR);
-            c = c->next;
             continue;
         } else if(token->key == TOKEN_SIZEOF){
             c = c->next;
@@ -559,11 +554,17 @@ expression(table_t *tls, itable_t *c, array_t *code)
             continue;
         } else if(token->key == TOKEN_WHILE){
             c = c->next;
+            token = (token_t *) c->value;
 
             iarray_t *a = array_rpush(code, LOPB);
 
             /* current token must be '(' next it then call c = expression */
+            if(token->key != TOKEN_LPAREN){
+                parser_error(token, "while must begin by '('!");
+            }
+
             c = c->next;
+            token = (token_t *) c->value;
 
             while(token->key != TOKEN_RPAREN){
                 c = expression(tls, c, code);
@@ -791,7 +792,7 @@ expression(table_t *tls, itable_t *c, array_t *code)
             c = c->next;
             continue;
         } else if(token->key == TOKEN_LBRACKET){
-            array_rpush(code, SVBR);
+            array_rpush(code, SBR);
             c = c->next;
             token = (token_t *) c->value;
             long64_t cnt = 0;
@@ -872,8 +873,8 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
         */
         if(token->key == TOKEN_ID){
 
-            char *class_name = (char *)token->value;
-            class_t *class_object = parser_class_get(clspar, class_name);
+            char *cur_name = (char *)token->value;
+            class_t *class_object = parser_class_get(clspar, cur_name);
 
             c = c->next;
             token = (token_t *) c->value;
@@ -886,7 +887,7 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
                 class_t *clscur = class_object;
                 if(!class_object){
                     clscur = (class_t *)malloc(sizeof(class_t));
-                    clscur->key = class_name;
+                    clscur->key = cur_name;
                     clscur->type = CLASS_RAW;
 
                     clscur->parents = table_create();
@@ -985,7 +986,7 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
             else
             if(token->key == TOKEN_LPAREN){
                 function_t *fun = (function_t *)malloc(sizeof(function_t));
-                fun->key = class_name;
+                fun->key = cur_name;
                 fun->type = FN_PAREN;
                 fun->n = 0;
                 fun->variables = table_create();
@@ -1048,6 +1049,7 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
 
                 jmp->value = (value_t)array_rpush(code, NUL);
 
+
                 if(c == tls->end){
                     return c;
                 }
@@ -1057,7 +1059,7 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
             else
             if(token->key == TOKEN_LBRACKET){
                 function_t *fun = (function_t *)malloc(sizeof(function_t));
-                fun->key = class_name;
+                fun->key = cur_name;
                 fun->type = FN_BRACKET;
                 fun->n = 0;
                 fun->variables = table_create();
@@ -3244,98 +3246,6 @@ statement(table_t *tls, class_t *base, itable_t *c, class_t *clspar, array_t *co
             }
             c = c->next;
             continue;
-        } else if(token->key == TOKEN_MINUSGT){
-            c = c->next;
-            token = (token_t *) c->value;
-            if(token->key == TOKEN_LPAREN){
-                function_t *fun = (function_t *)malloc(sizeof(function_t));
-                fun->key = "->";
-                fun->type = FN_PAREN;
-                fun->n = 0;
-                fun->variables = table_create();
-                fun->super = clspar;
-
-                table_rpush(clspar->functions, (value_p)fun);
-
-                array_rpush(code, JMP);
-                iarray_t *jmp = array_rpush(code, 0);
-
-                fun->start = array_rpush(code, ENT);
-
-                c = c->next;
-                token = (token_t *) c->value;
-                while(token->key != TOKEN_RPAREN){
-                    int ref = 0;
-                    if(token->key == TOKEN_COMMA){
-                        c = c->next;
-                        token = (token_t *) c->value;
-                        continue;
-                    }
-                    if(token->key == TOKEN_REF){
-                        ref = 1;
-                        c = c->next;
-                        token = (token_t *) c->value;
-                    }
-
-                    if(token->key != TOKEN_ID){
-                        parser_error(token, "bad parameters definition!");
-                    }
-
-                    fun->n++;
-                    array_rpush(code, VAR);
-                    array_rpush(code, (value_t)token->value);
-                    if(ref > 0){
-                        array_rpush(code, REF);
-                    }
-                    array_rpush(code, LD);
-
-                    c = c->next;
-                    token = (token_t *) c->value;
-                }
-
-                c = c->next;
-                c = c->next;
-
-                // body function
-                token = (token_t *) c->value;
-
-                while(token->key != TOKEN_RBRACE){
-                    c = expression(tls, c, code);
-                    token = (token_t *) c->value;
-
-                    if(token->key != TOKEN_RBRACE){
-                        c = c->next;
-                        token = (token_t *) c->value;
-                    }
-                }
-
-                fun->end = array_rpush(code, LEV);
-
-                jmp->value = (value_t)array_rpush(code, NUL);
-
-                if(c == tls->end){
-                    return c;
-                }
-                c = c->next;
-                continue;
-            }
-            c = c->previous;
-            token = (token_t *) c->value;
-
-            while(token->key != TOKEN_SEMICOLON){
-                c = expression(tls, c, code);
-                token = (token_t *) c->value;
-
-                if(token->key != TOKEN_SEMICOLON){
-                    c = c->next;
-                    token = (token_t *) c->value;
-                }
-            }
-            if(c == tls->end){
-                return c;
-            }
-            c = c->next;
-            continue;
         } else if(token->key == TOKEN_LBRACE){
             c = c->next;
             /*
@@ -3625,7 +3535,7 @@ parser(table_t *tls, long64_t argc, char **argv, array_t *code)
 
     array_rpush(code, VAR);
     array_rpush(code, (long64_t)global_name);
-    array_rpush(code, SVPA);
+    array_rpush(code, SPA);
     array_rpush(code, CALL);
     clscur->end = array_rpush(code, EXIT);
 

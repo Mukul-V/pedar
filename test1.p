@@ -40,7 +40,7 @@ main(){
     insert(list, 1, 300);
     delete(list, 1, 2, 3, 4, 5, 6, 7);
 
-    print("%s %n\n", list, list.count());
+    print("%s %n\n", list, count(list));
 
     fls = file.walk("libs");
 

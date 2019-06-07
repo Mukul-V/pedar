@@ -6,6 +6,7 @@ typedef enum object_type {
 	TP_CHAR,
 	TP_NUMBER,
 	TP_DATA,
+	TP_FN,
 	TP_CLASS,
 	TP_IMM
 } object_type_t;
@@ -76,15 +77,19 @@ enum
 	EXIT,
 	SIZEOF,
 	TYPEOF,
+
+	DATA,
 	DELETE,
 	INSERT,
-	DATA,
+	SELECT,
 	COUNT,
-	SVBR, // 51
-	SVPA,
+
+	SBR, // 52
+	SPA,
 	RAR,
 	REF,
 	RET,
+
 
 	OPEN,
 	CLOSE,
@@ -133,8 +138,6 @@ typedef struct class {
 	table_t *childrens;
 	table_t *functions;
 	table_t *variables;
-
-	table_t *classes;
 
 	struct class *super;
 } class_t;
