@@ -61,7 +61,7 @@ main(){
 }
 ```
 
-A Pedar program basically consists of the following parts −
++ A Pedar program basically consists of the following parts
     - Import Packages
     - Class
     - Functions
