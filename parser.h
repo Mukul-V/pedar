@@ -1,5 +1,7 @@
 #pragma once
 
+#define __MEMORY_MANAGER__
+
 // variable types, must be sorted (to up)
 typedef enum object_type {
 	TP_NULL,
@@ -8,7 +10,8 @@ typedef enum object_type {
 	TP_DATA,
 	TP_FN,
 	TP_CLASS,
-	TP_IMM
+	TP_IMM,
+	TP_ADRS
 } object_type_t;
 
 typedef enum object_level {

@@ -9,13 +9,14 @@
 
 #include "types.h"
 #include "table.h"
+#include "memory.h"
 
 table_t *
 table_apply(table_t *tbl)
 {
     itable_t *it;
 
-    if(!(it = (itable_t *)malloc(sizeof(itable_t)))) {
+    if(!(it = (itable_t *)pedar_malloc(sizeof(itable_t)))) {
         return 0;
     }
 
@@ -30,17 +31,22 @@ table_create()
 {
     table_t *tbl;
 
-    if(!(tbl = (table_t *)malloc(sizeof(*tbl)))) {
+    if(!(tbl = (table_t *)pedar_malloc(sizeof(*tbl)))) {
         return 0;
     }
 
     return table_apply(tbl);
 }
 
-key_t
+value_t
 table_isempty(table_t *tbl)
 {
     return (tbl->begin == tbl->end);
+}
+
+value_p
+table_content(itable_t *current){
+    return current ? current->value : 0;
 }
 
 itable_t*
@@ -55,10 +61,10 @@ table_previous(itable_t *current)
     return current->previous;
 }
 
-key_t
+value_t
 table_count(table_t *tbl)
 {
-    key_t cnt = 0;
+    value_t cnt = 0;
     itable_t *b;
     for(b = tbl->begin; b && (b != tbl->end); b = b->next){
         cnt++;
@@ -66,8 +72,8 @@ table_count(table_t *tbl)
     return cnt;
 }
 
-key_t
-table_clear(table_t *tbl, key_t (*f)(itable_t*))
+value_t
+table_clear(table_t *tbl, value_t (*f)(itable_t*))
 {
     if (table_isempty(tbl))
         return 0;
@@ -84,10 +90,10 @@ table_clear(table_t *tbl, key_t (*f)(itable_t*))
 }
 
 void
-table_destroy(table_t *tbl, key_t (*f)(itable_t*))
+table_destroy(table_t *tbl, value_t (*f)(itable_t*))
 {
     table_clear(tbl, *f);
-    free (tbl);
+    pedar_free (tbl);
 }
 
 itable_t*
@@ -123,7 +129,7 @@ table_unlink(table_t *tbl, itable_t* it)
 }
 
 itable_t*
-table_sort(table_t *tbl, key_t (*f)(value_p, value_p))
+table_sort(table_t *tbl, value_t (*f)(value_p, value_p))
 {
     itable_t *b, *n;
     for(b = tbl->begin; b != tbl->end; b = n){
@@ -139,7 +145,7 @@ table_sort(table_t *tbl, key_t (*f)(value_p, value_p))
 }
 
 itable_t*
-table_remove(table_t *tbl, key_t (*f)(value_p))
+table_remove(table_t *tbl, value_t (*f)(value_p))
 {
     itable_t *b, *n;
     for(b = tbl->begin; b != tbl->end; b = n){
@@ -161,7 +167,7 @@ itable_t *
 table_rpush(table_t *tbl, value_p value)
 {
     itable_t *it;
-    if(!(it = (itable_t *)malloc(sizeof(*it)))) {
+    if(!(it = (itable_t *)pedar_malloc(sizeof(*it)))) {
         return 0;
     }
 
@@ -181,7 +187,7 @@ table_lpush(table_t *tbl, value_p value)
 {
     itable_t *it;
 
-    if(!(it = (itable_t *)malloc(sizeof(*it)))) {
+    if(!(it = (itable_t *)pedar_malloc(sizeof(*it)))) {
         return 0;
     }
 
@@ -194,7 +200,7 @@ itable_t *
 table_insert(table_t *tbl, itable_t *current, value_p value){
     itable_t *it;
 
-    if(!(it = (itable_t *)malloc(sizeof(*it)))) {
+    if(!(it = (itable_t *)pedar_malloc(sizeof(*it)))) {
         return 0;
     }
 
@@ -203,7 +209,7 @@ table_insert(table_t *tbl, itable_t *current, value_p value){
     return table_link(tbl, current, it);
 }
 
-key_t
+value_t
 table_null(table_t *tbl)
 {
     if(tbl == 0){
@@ -213,7 +219,7 @@ table_null(table_t *tbl)
 }
 
 itable_t *
-table_at(table_t *tbl, key_t key)
+table_at(table_t *tbl, value_t key)
 {
     itable_t *b, *n;
     for(b = tbl->begin; b && (b != tbl->end); b = n){
@@ -228,7 +234,7 @@ table_at(table_t *tbl, key_t key)
     }
 
     itable_t *it;
-    if(!(it = (itable_t *)malloc(sizeof(*it)))) {
+    if(!(it = (itable_t *)pedar_malloc(sizeof(*it)))) {
         return 0;
     }
 
@@ -270,7 +276,7 @@ table_last(table_t *tbl)
 }
 
 itable_t *
-table_first_or_default(table_t *tbl, key_t (*f)(value_p))
+table_first_or_default(table_t *tbl, value_t (*f)(value_p))
 {
     itable_t *b, *n;
     for(b = tbl->begin; b && (b != tbl->end); b = n){
@@ -283,7 +289,7 @@ table_first_or_default(table_t *tbl, key_t (*f)(value_p))
 }
 
 itable_t *
-table_last_or_default(table_t *tbl, key_t (*f)(value_p))
+table_last_or_default(table_t *tbl, value_t (*f)(value_p))
 {
     itable_t *b, *p;
     for(b = tbl->end->previous; b && (b != tbl->end); b = p){

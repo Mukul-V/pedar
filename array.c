@@ -9,13 +9,14 @@
 
 #include "types.h"
 #include "array.h"
+#include "memory.h"
 
 array_t *
 array_apply(array_t *arr)
 {
     iarray_t *it;
 
-    if(!(it = (iarray_t *)malloc(sizeof(*it)))) {
+    if(!(it = (iarray_t *)pedar_malloc(sizeof(*it)))) {
         return 0;
     }
 
@@ -30,14 +31,14 @@ array_create()
 {
     array_t *arr;
 
-    if(!(arr = (array_t *)malloc(sizeof(*arr)))) {
+    if(!(arr = (array_t *)pedar_malloc(sizeof(*arr)))) {
         return 0;
     }
 
     return array_apply(arr);
 }
 
-key_t
+value_t
 array_isempty(array_t *arr)
 {
     return (arr->begin == arr->end);
@@ -55,10 +56,10 @@ array_previous(iarray_t *current)
     return current->previous;
 }
 
-key_t
+value_t
 array_count(array_t *arr)
 {
-    key_t cnt = 0;
+    value_t cnt = 0;
     iarray_t *b;
     for(b = arr->begin; b && (b != arr->end); b = b->next){
         cnt++;
@@ -66,8 +67,8 @@ array_count(array_t *arr)
     return cnt;
 }
 
-key_t
-array_clear(array_t *arr, key_t (*f)(iarray_t*))
+value_t
+array_clear(array_t *arr, value_t (*f)(iarray_t*))
 {
     if (array_isempty(arr))
         return 0;
@@ -84,10 +85,10 @@ array_clear(array_t *arr, key_t (*f)(iarray_t*))
 }
 
 void
-array_destroy(array_t *arr, key_t (*f)(iarray_t*))
+array_destroy(array_t *arr, value_t (*f)(iarray_t*))
 {
     array_clear(arr, *f);
-    free (arr);
+    pedar_free (arr);
 }
 
 iarray_t*
@@ -123,7 +124,7 @@ array_unlink(array_t *arr, iarray_t* it)
 }
 
 iarray_t*
-array_remove(array_t *arr, key_t (*f)(value_t))
+array_remove(array_t *arr, value_t (*f)(value_t))
 {
     iarray_t *b, *n;
     for(b = arr->begin; b != arr->end; b = n){
@@ -145,7 +146,7 @@ iarray_t *
 array_rpush(array_t *arr, value_t value)
 {
     iarray_t *it;
-    if(!(it = (iarray_t *)malloc(sizeof(*it)))) {
+    if(!(it = (iarray_t *)pedar_malloc(sizeof(*it)))) {
         return 0;
     }
 
@@ -165,7 +166,7 @@ array_lpush(array_t *arr, value_t value)
 {
     iarray_t *it;
 
-    if(!(it = (iarray_t *)malloc(sizeof(*it)))) {
+    if(!(it = (iarray_t *)pedar_malloc(sizeof(*it)))) {
         return 0;
     }
 
@@ -175,10 +176,10 @@ array_lpush(array_t *arr, value_t value)
 }
 
 iarray_t *
-array_insert(array_t *arr, key_t n, value_t value)
+array_insert(array_t *arr, value_t n, value_t value)
 {
     iarray_t *current = arr->begin;
-    for (key_t i = 0; i < n; i++)
+    for (value_t i = 0; i < n; i++)
     {
         if (current == arr->end) {
             return 0;
@@ -188,7 +189,7 @@ array_insert(array_t *arr, key_t n, value_t value)
 
     iarray_t *it;
 
-    if(!(it = (iarray_t *)malloc(sizeof(*it)))) {
+    if(!(it = (iarray_t *)pedar_malloc(sizeof(*it)))) {
         return 0;
     }
 
@@ -197,7 +198,7 @@ array_insert(array_t *arr, key_t n, value_t value)
     return array_link(arr, current, it);
 }
 
-key_t
+value_t
 array_null(array_t *arr)
 {
     if(arr == 0){
@@ -207,7 +208,7 @@ array_null(array_t *arr)
 }
 
 iarray_t *
-array_at(array_t *arr, key_t key)
+array_at(array_t *arr, value_t key)
 {
     iarray_t *b, *n;
     for(b = arr->begin; b && (b != arr->end); b = n){
@@ -222,7 +223,7 @@ array_at(array_t *arr, key_t key)
     }
 
     iarray_t *it;
-    if(!(it = (iarray_t *)malloc(sizeof(*it)))) {
+    if(!(it = (iarray_t *)pedar_malloc(sizeof(*it)))) {
         return 0;
     }
 
@@ -264,7 +265,7 @@ array_last(array_t *arr)
 }
 
 iarray_t *
-array_first_or_default(array_t *arr, key_t (*f)(value_t))
+array_first_or_default(array_t *arr, value_t (*f)(value_t))
 {
     iarray_t *b, *n;
     for(b = arr->begin; b && (b != arr->end); b = n){
@@ -277,7 +278,7 @@ array_first_or_default(array_t *arr, key_t (*f)(value_t))
 }
 
 iarray_t *
-array_last_or_default(array_t *arr, key_t (*f)(value_t))
+array_last_or_default(array_t *arr, value_t (*f)(value_t))
 {
     iarray_t *b, *p;
     for(b = arr->end->previous; b && (b != arr->end); b = p){

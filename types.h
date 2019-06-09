@@ -32,8 +32,6 @@ typedef int bool_t;
 #define nullptr 0
 
 
+typedef long64_t  value_t;
+typedef long64_t* value_p;
 
-
-
-#define value_t long64_t
-#define value_p long64_t *
