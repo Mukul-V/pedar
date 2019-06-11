@@ -1,100 +1,24 @@
 #pragma once
 
 
-typedef struct segment {
-	value_t count;
-	object_t **value;
-} segment_t;
-
-
-typedef struct islot {
-    struct islot *previous;
-    struct islot *next;
-    segment_t *value;
-} islot_t;
-
-typedef struct slot {
-    islot_t *begin;
-    islot_t *end;
-} slot_t;
-
 typedef struct frame {
-	slot_t *slot;
+	value_t count;
+	value_t size;
+	object_t **value;
 } frame_t;
-
-
-segment_t *
-segment_create();
-
-object_t *
-segment_push(segment_t *fr, object_t *value);
-
-object_t *
-segment_pop(segment_t *fr);
-
-value_t
-segment_count(segment_t *fr);
-
 
 
 frame_t *
 frame_create();
 
 object_t *
-frame_push(frame_t *stk, object_t *value);
+frame_push(frame_t *fr, object_t *value);
 
 object_t *
-frame_pop(frame_t *stk);
-
-void
-frame_destroy(frame_t *stk, value_t (*f)(object_t *));
-
-
-
-slot_t *
-slot_create();
+frame_pop(frame_t *fr);
 
 value_t
-slot_isempty(slot_t *slt);
-
-segment_t *
-slot_content(islot_t *b);
+frame_count(frame_t *fr);
 
 value_t
-slot_count(slot_t *slt);
-
-value_t
-slot_clear(slot_t *slt, value_t (*f)(islot_t*));
-
-void
-slot_destroy(slot_t *slt, value_t (*f)(islot_t*));
-
-islot_t*
-slot_link(slot_t *slt, islot_t *current, islot_t *it);
-
-islot_t*
-slot_unlink(slot_t *slt, islot_t* it);
-
-islot_t*
-slot_remove(slot_t *slt, value_t (*f)(segment_t *));
-
-islot_t*
-slot_rpop(slot_t *slt);
-
-islot_t *
-slot_rpush(slot_t *slt, segment_t *value);
-
-islot_t*
-slot_lpop(slot_t *slt);
-
-islot_t *
-slot_lpush(slot_t *slt, segment_t *value);
-
-value_t
-slot_null(slot_t *slt);
-
-islot_t *
-slot_first(slot_t *slt);
-
-islot_t *
-slot_last(slot_t *slt);
+frame_size(frame_t *fr);

@@ -5,9 +5,9 @@ Version: 1.0.0-1
 Auto-Built-Package: debug-symbols
 Architecture: amd64
 Maintainer: Yasser Sajjadi <yassersajjadi@gmail.com>
-Installed-Size: 127
+Installed-Size: 123
 Depends: pedar (= 1.0.0-1)
 Section: debug
 Priority: optional
 Description: debug symbols for pedar
-Build-Ids: 58aea6a3c780464c2d884facb04ae29a0217e47e
+Build-Ids: 42dc5a1e6a23b4ce1e4faa6060ad05d8597e9c47
