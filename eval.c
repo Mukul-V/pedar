@@ -43,7 +43,7 @@ typedef struct variable {
 
 
 function_t *
-function_get(class_t *clspar, char *key, long64_t nparams, fn_type_t type);
+function_get(class_t *clspar, char *key, value_t nparams, fn_type_t type);
 
 function_t *
 function_clone(class_t *clspar, function_t *funpar);
@@ -67,7 +67,7 @@ class_get(class_t *clspar, char *key);
 class_t *
 class_find(class_t *clspar, char *key);
 
-long64_t
+value_t
 class_sizeof(class_t *clspar);
 
 variable_t *
@@ -89,7 +89,7 @@ variable_delete(variable_t *varpar);
 
 
 
-long64_t
+value_t
 data_sizeof(table_t *tbl);
 
 table_t *
@@ -109,17 +109,17 @@ data_delete(table_t *tbl);
 
 
 
-long64_t
+value_t
 object_destroy(itable_t *it);
 
 void
 object_delete(object_t *obj);
 
-long64_t
+value_t
 object_sizeof(object_t *obj);
 
-long64_t
-object_sort(long64_t *obj_1, long64_t *obj_2){
+value_t
+object_sort(value_t *obj_1, value_t *obj_2){
 	object_t *obj1 = (object_t *)obj_1;
 	object_t *obj2 = (object_t *)obj_2;
 	if(obj1->type == TP_NUMBER && obj2->type == TP_NUMBER){
@@ -165,7 +165,7 @@ object_delete(object_t *obj)
     }
 }
 
-long64_t
+value_t
 object_destroy(itable_t *it)
 {
 	object_t *obj;
@@ -178,7 +178,7 @@ object_destroy(itable_t *it)
     return 1;
 }
 
-long64_t
+value_t
 object_sizeof(object_t *obj)
 {
     if(obj->type == TP_NULL){
@@ -234,7 +234,7 @@ object_clone(object_t *obj)
 
 /* get function from current class and parrent classes */
 function_t *
-function_get(class_t *clspar, char *key, long64_t nparams, fn_type_t type)
+function_get(class_t *clspar, char *key, value_t nparams, fn_type_t type)
 {
     function_t *fn;
     itable_t *c;
@@ -411,7 +411,7 @@ class_get_name(class_t *clspar)
 			obj->num = '.';
 			table_lpush(tbl, (value_p)obj);
 		}
-		long64_t i = 0;
+		value_t i = 0;
 		for(i = strlen(clspar->key); i > 0; i--){
 			obj = pedar_object_malloc(sizeof(double));
 			obj->type = TP_CHAR;
@@ -460,10 +460,10 @@ class_find(class_t *clspar, char *key)
 	return nullptr;
 }
 
-long64_t
+value_t
 class_sizeof(class_t *clspar)
 {
-	long64_t res = 0;
+	value_t res = 0;
 	variable_t *var;
 	itable_t *p;
 	for(p = clspar->variables->begin; p != clspar->variables->end; p = p->next){
@@ -543,10 +543,10 @@ variable_delete(variable_t *var)
 
 
 
-long64_t
+value_t
 data_sizeof(table_t *tbl)
 {
-    long64_t res = 0;
+    value_t res = 0;
     itable_t *t;
     for(t = tbl->begin; t != tbl->end; t = t->next){
         res += object_sizeof((object_t *) t->value);
@@ -574,7 +574,7 @@ table_t *
 data_from(char *str)
 {
     table_t *tbl = table_create();
-    long64_t i;
+    value_t i;
     for(i = 0; i < strlen(str); i++){
         object_t *obj;
         if(!(obj = pedar_object_malloc(sizeof(char)))){
@@ -592,7 +592,7 @@ char *
 data_to(table_t *tbl)
 {
     char *str = malloc(table_count(tbl) * sizeof(char));
-    long64_t i = 0;
+    value_t i = 0;
     itable_t *b;
     for(b = tbl->begin; b && (b != tbl->end); b = b->next){
         object_t *obj = (object_t *)b->value;
@@ -614,10 +614,10 @@ data_format(table_t *tbl, table_t *format, table_t *formated)
         obj = (object_t *)t->value;
 
         if(obj->type == TP_NULL){
-			long64_t i;
+			value_t i;
 			for(i = 0; i < strlen(STR_NULL); i++){
 				if(!(esp = pedar_object_malloc(sizeof(char)))){
-                    printf("object, bad memory!\n");
+                    printf("unable to alloc memory!\n");
                     exit(-1);
                 }
                 esp->type = TP_CHAR;
@@ -625,7 +625,7 @@ data_format(table_t *tbl, table_t *format, table_t *formated)
 				table_rpush(formated, (value_p)esp);
 			}
 			if(!(esp = pedar_object_malloc(sizeof(char)))){
-				printf("object, bad memory!\n");
+				printf("unable to alloc memory!\n");
 				exit(-1);
 			}
 			esp->type = TP_CHAR;
@@ -636,7 +636,7 @@ data_format(table_t *tbl, table_t *format, table_t *formated)
         }
 		else
 		if(obj->type == TP_CHAR){
-			long64_t num = 0;
+			value_t num = 0;
 			if(obj->num == '%'){
 				t = t->next;
 				obj = (object_t *)t->value;
@@ -686,19 +686,19 @@ data_format(table_t *tbl, table_t *format, table_t *formated)
 					sprintf(fmt, "%%.%lldf", num);
 
 					char *str_num = pedar_malloc(sizeof(char) * 255);
-					if(((obj->num - (long64_t)obj->num) != 0) || (num > 0)){
+					if(((obj->num - (value_t)obj->num) != 0) || (num > 0)){
 						sprintf(str_num, fmt, obj->num);
 					}
 					else {
-						sprintf(str_num, "%lld", (long64_t)obj->num);
+						sprintf(str_num, "%lld", (value_t)obj->num);
 					}
 
 					pedar_free(fmt);
 
-					long64_t i;
+					value_t i;
 					for(i = 0; i < strlen(str_num); i++){
 						if(!(esp = pedar_object_malloc(sizeof(char)))){
-							printf("object, bad memory!\n");
+							printf("unable to alloc memory!\n");
 							exit(-1);
 						}
 						esp->type = TP_CHAR;
@@ -724,19 +724,19 @@ data_format(table_t *tbl, table_t *format, table_t *formated)
 					sprintf(fmt, "%%0%lldllx", num);
 
 					char *str_num = pedar_malloc(sizeof(char) * 255);
-					if(((obj->num - (long64_t)obj->num) != 0) || (num > 0)){
+					if(((obj->num - (value_t)obj->num) != 0) || (num > 0)){
 						sprintf(str_num, fmt, obj->num);
 					}
 					else {
-						sprintf(str_num, "%llx", (long64_t)obj->num);
+						sprintf(str_num, "%llx", (value_t)obj->num);
 					}
 
 					pedar_free(fmt);
 
-					long64_t i;
+					value_t i;
 					for(i = 0; i < strlen(str_num); i++){
 						if(!(esp = pedar_object_malloc(sizeof(char)))){
-							printf("object, bad memory!\n");
+							printf("unable to alloc memory!\n");
 							exit(-1);
 						}
 						esp->type = TP_CHAR;
@@ -762,19 +762,19 @@ data_format(table_t *tbl, table_t *format, table_t *formated)
 					sprintf(fmt, "%%0%lldllX", num);
 
 					char *str_num = pedar_malloc(sizeof(char) * 255);
-					if(((obj->num - (long64_t)obj->num) != 0) || (num > 0)){
+					if(((obj->num - (value_t)obj->num) != 0) || (num > 0)){
 						sprintf(str_num, fmt, obj->num);
 					}
 					else {
-						sprintf(str_num, "%llX", (long64_t)obj->num);
+						sprintf(str_num, "%llX", (value_t)obj->num);
 					}
 
 					pedar_free(fmt);
 
-					long64_t i;
+					value_t i;
 					for(i = 0; i < strlen(str_num); i++){
 						if(!(esp = pedar_object_malloc(sizeof(char)))){
-							printf("object, bad memory!\n");
+							printf("unable to alloc memory!\n");
 							exit(-1);
 						}
 						esp->type = TP_CHAR;
@@ -789,7 +789,7 @@ data_format(table_t *tbl, table_t *format, table_t *formated)
 				}
 
 				if(!(esp = pedar_object_malloc(sizeof(char)))){
-					printf("object, bad memory!\n");
+					printf("unable to alloc memory!\n");
 					exit(-1);
 				}
 				esp->type = TP_CHAR;
@@ -801,7 +801,7 @@ data_format(table_t *tbl, table_t *format, table_t *formated)
 			}
 
 			if(!(esp = pedar_object_malloc(sizeof(char)))){
-				printf("object, bad memory!\n");
+				printf("unable to alloc memory!\n");
 				exit(-1);
 			}
 			esp->type = TP_CHAR;
@@ -813,10 +813,10 @@ data_format(table_t *tbl, table_t *format, table_t *formated)
 		else
 		if(obj->type == TP_CLASS){
 			class_t *cls = (class_t *)obj->ptr;
-			long64_t i;
+			value_t i;
 			for(i = 0; i < strlen(cls->key); i++){
 				if(!(esp = pedar_object_malloc(sizeof(char)))){
-					printf("object, bad memory!\n");
+					printf("unable to alloc memory!\n");
 					exit(-1);
 				}
 				esp->type = TP_CHAR;
@@ -824,7 +824,7 @@ data_format(table_t *tbl, table_t *format, table_t *formated)
 				table_rpush(formated, (value_p)esp);
 			}
 			if(!(esp = pedar_object_malloc(sizeof(char)))){
-				printf("object, bad memory!\n");
+				printf("unable to alloc memory!\n");
 				exit(-1);
 			}
 			esp->type = TP_CHAR;
@@ -836,16 +836,16 @@ data_format(table_t *tbl, table_t *format, table_t *formated)
 		else
 		if(obj->type == TP_NUMBER){
 			char *str_num = pedar_malloc(sizeof(char) * 255);
-			if((obj->num - (long64_t)obj->num) != 0){
+			if((obj->num - (value_t)obj->num) != 0){
 				sprintf(str_num, "%.16f", obj->num);
 			}
 			else {
-				sprintf(str_num, "%lld", (long64_t)obj->num);
+				sprintf(str_num, "%lld", (value_t)obj->num);
 			}
-			long64_t i;
+			value_t i;
 			for(i = 0; i < strlen(str_num); i++){
 				if(!(esp = pedar_object_malloc(sizeof(char)))){
-					printf("object, bad memory!\n");
+					printf("unable to alloc memory!\n");
 					exit(-1);
 				}
 				esp->type = TP_CHAR;
@@ -856,7 +856,7 @@ data_format(table_t *tbl, table_t *format, table_t *formated)
 			pedar_free(str_num);
 
 			if(!(esp = pedar_object_malloc(sizeof(char)))){
-				printf("object, bad memory!\n");
+				printf("unable to alloc memory!\n");
 				exit(-1);
 			}
 			esp->type = TP_CHAR;
@@ -891,7 +891,7 @@ data_delete(table_t *tbl)
     pedar_free(tbl);
 }
 
-long64_t
+value_t
 data_compare(table_t *tbl1, table_t *tbl2)
 {
 	if(table_count(tbl1) != table_count(tbl2)){
@@ -928,7 +928,7 @@ data_compare(table_t *tbl1, table_t *tbl2)
 		if(obj1->type == TP_CLASS){
 			table_t *tn1 = class_get_name((class_t *)obj1->ptr);
 			table_t *tn2 = class_get_name((class_t *)obj2->ptr);
-			long64_t r = data_compare(tn1,tn2);
+			value_t r = data_compare(tn1,tn2);
 			data_delete(tn1);
 			data_delete(tn2);
 			return r;
@@ -941,3417 +941,2452 @@ data_compare(table_t *tbl1, table_t *tbl2)
 	return 1;
 }
 
-void
-eval(class_t *base, array_t *code)
-{
-    long64_t op;
-
-    variable_t *egx = nullptr;
-
-    /* ecx save refrence of current class */
-    class_t *ecx = nullptr;
-
-    object_t *eax = nullptr;
-    object_t *esp = nullptr;
-
-	table_t *stack_ebx = table_create();
-	table_t *stack_ecx = table_create();
-	table_t *stack_edx = table_create();
-
-    /* epx save refrence of parrent class */
-    class_t *epx = nullptr;
-    table_t *stack_epx = table_create();
-
-    /* efx save refrence of path func in variables */
-    function_t *efx = nullptr;
-    table_t *stack_efx = table_create();
-
-    //table_t *frame = nullptr;
-	stack_t *frame = nullptr;
-    table_t *stack_frame = table_create();
-
-    iarray_t *c = code->begin;
-
-    while( c != code->end ){
-        // get next operation code
-        op = c->value;
-
-        //printf("%lld\n", c->value);
-
-        if (op == NUL) {
-        	c = c->next;
-        	continue;
-        }
-
-        else if (op == LOPB){
-            c = c->next;
-            continue;
-        }
-        else if (op == LOPE){
-            c = c->next;
-            continue;
-        }
-
-        //OR LOR XOR AND LAND EQ NE LT LE GT GE LSHIFT RSHIFT ADD SUB MUL DIV MOD RAR
-        else if (op == OR){
-            if(!(esp = (object_t *)stack_pop(frame))){
-                printf("[or], you can use of '||' between two object!\n");
-                exit(-1);
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[or] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = (long64_t)esp->num || (long64_t)eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , "||",1, FN_PAREN))){
-                    printf("eval: operator '||' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[or] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , "||",1, FN_PAREN))){
-                    printf("eval: operator '||' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[or] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("[or] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == LOR){
-            if(!(esp = (object_t *)stack_pop(frame))){
-                printf("[LOGIC OR], you can use of '|' between two integer number!\n");
-                exit(-1);
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[LOGIC OR] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = (long64_t)esp->num | (long64_t)eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , "|",1, FN_PAREN))){
-                    printf("eval: operator '|' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[LOGIC OR] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , "|",1, FN_PAREN))){
-                    printf("eval: operator '|' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[LOGIC OR] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("[LOGIC OR] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == XOR){
-            if(!(esp = (object_t *)stack_pop(frame))){
-                printf("[^], you can use of '^' between two object!\n");
-                exit(-1);
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[^] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = (long64_t)esp->num ^ (long64_t)eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , "^",1, FN_PAREN))){
-                    printf("eval: operator '^' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[XOR] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , "^",1, FN_PAREN))){
-                    printf("eval: operator '^' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[XOR] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("[XOR] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == AND){
-            if(!(esp = (object_t *)stack_pop(frame))){
-                printf("[&&], you can use of '&&' between two object!\n");
-                exit(-1);
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[&&] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = (long64_t)esp->num && (long64_t)eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , "&&",1, FN_PAREN))){
-                    printf("eval: operator '&&' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[&&] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , "&&",1, FN_PAREN))){
-                    printf("eval: operator '&&' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[&&] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("[&&] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == LAND){
-            if(!(esp = (object_t *)stack_pop(frame))){
-                printf("[&], you can use of '&' between two object!\n");
-                exit(-1);
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[&] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = (long64_t)esp->num & (long64_t)eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , "&",1, FN_PAREN))){
-                    printf("eval: operator '&' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[&] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , "&",1, FN_PAREN))){
-                    printf("eval: operator '&' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[&] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("[&] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == EQ){
-            if(!(esp = (object_t *)stack_pop(frame))){
-                printf("[==], you can use of '==' between two object!\n");
-                exit(-1);
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[==] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = esp->num == eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , "==",1, FN_PAREN))){
-                    printf("eval: operator '==' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[==] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , "==",1, FN_PAREN))){
-                    printf("eval: operator '==' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[==] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-			else if(esp->type == TP_DATA && eax->type == TP_DATA){
-				object_t *obj;
-				if(!(obj = pedar_object_malloc(sizeof(double)))){
-					printf("[==] object not defined!\n");
-					exit(-1);
-				}
-
-				obj->type = TP_NUMBER;
-				obj->num = data_compare((table_t *)esp->ptr, (table_t *)eax->ptr);
-
-				object_delete(esp);
-				object_delete(eax);
-
-				eax = obj;
-				c = c->next;
-				continue;
-			}
-
-            printf("[==] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == NE){
-			if(!(esp = (object_t *)stack_pop(frame))){
-                printf("[!=], you can use of '!=' between two object!\n");
-                exit(-1);
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[!=] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = esp->num != eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , "!=",1, FN_PAREN))){
-                    printf("eval: operator '!=' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[!=] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , "!=",1, FN_PAREN))){
-                    printf("eval: operator '!=' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[!=] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-			else if(esp->type == TP_DATA && eax->type == TP_DATA){
-				object_t *obj;
-				if(!(obj = pedar_object_malloc(sizeof(double)))){
-					printf("[==] object not defined!\n");
-					exit(-1);
-				}
-
-				obj->type = TP_NUMBER;
-				obj->num = !data_compare((table_t *)esp->ptr, (table_t *)eax->ptr);
-
-				object_delete(esp);
-				object_delete(eax);
-
-				eax = obj;
-				c = c->next;
-				continue;
-			}
-            printf("[!=] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == LT){
-
-            if(!(esp = (object_t *)stack_pop(frame))){
-                printf("[<], you can use of '<' between two object!\n");
-                exit(-1);
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[<] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = esp->num < eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , "<",1, FN_PAREN))){
-                    printf("eval: operator '<' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[<] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , "<",1, FN_PAREN))){
-                    printf("eval: operator '<' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[<] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("[<] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == LE){
-			if(!(esp = (object_t *)stack_pop(frame))){
-                printf("[<=], you can use of '<=' between two object!\n");
-                exit(-1);
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[<=] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = esp->num <= eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , "<=",1, FN_PAREN))){
-                    printf("eval: operator '<=' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[<=] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , "<=",1, FN_PAREN))){
-                    printf("eval: operator '<=' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[<=] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("[<=] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == GT){
-
-            if(!(esp = (object_t *)stack_pop(frame))){
-                printf("[>], you can use of '>' between two object!\n");
-                exit(-1);
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[>] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = esp->num > eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , ">",1, FN_PAREN))){
-                    printf("eval: operator '>' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[>] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , ">",1, FN_PAREN))){
-                    printf("eval: operator '>' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[>] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("[>] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == GE){
-
-            if(!(esp = (object_t *)stack_pop(frame))){
-                printf("[>=], you can use of '>=' between two object!\n");
-                exit(-1);
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[>=] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = esp->num >= eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , ">=",1, FN_PAREN))){
-                    printf("eval: operator '>=' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[>=] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , ">=",1, FN_PAREN))){
-                    printf("eval: operator '>=' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[>=] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("[>=] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == LSHIFT){
-
-            if(!(esp = (object_t *)stack_pop(frame))){
-                printf("[<<], you can use of '<<' between two object!\n");
-                exit(-1);
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[<<] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = (long64_t)esp->num << (long64_t)eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , "<<",1, FN_PAREN))){
-                    printf("eval: operator '<<' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[<<] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , "<<",1, FN_PAREN))){
-                    printf("eval: operator '<<' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[<<] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("[<<] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == RSHIFT){
-
-            if(!(esp = (object_t *)stack_pop(frame))){
-                printf("[>>], you can use of '>>' between two object!\n");
-                exit(-1);
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[>>] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = (long64_t)esp->num >> (long64_t)eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , ">>",1, FN_PAREN))){
-                    printf("eval: operator '>>' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[>>] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , ">>",1, FN_PAREN))){
-                    printf("eval: operator '>>' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[>>] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("[>>] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == ADD){
-
-            if(!(esp = (object_t *)stack_pop(frame))){
-				object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[+] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 0;
-
-                esp = obj;
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[+] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = esp->num + eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , "+",1, FN_PAREN))){
-                    printf("eval: operator '+' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[+] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , "+",1, FN_PAREN))){
-                    printf("eval: operator '+' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[+] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("[+] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == SUB){
-
-            if(!(esp = (object_t *)stack_pop(frame))){
-				object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[-] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 0;
-
-                esp = obj;
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[-] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = esp->num - eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , "-",1, FN_PAREN))){
-                    printf("eval: operator '-' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[-] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , "-",1, FN_PAREN))){
-                    printf("eval: operator '-' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[-] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("[-] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == MUL){
-
-            if(!(esp = (object_t *)stack_pop(frame))){
-                printf("[*], you can use of '*' between two object!\n");
-                exit(-1);
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[*] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = esp->num * eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , "*",1, FN_PAREN))){
-                    printf("eval: operator '*' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[*] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , "*",1, FN_PAREN))){
-                    printf("eval: operator '*' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[*] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("[*] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == DIV){
-
-            if(!(esp = (object_t *)stack_pop(frame))){
-                printf("[/], you can use of '/' between two object!\n");
-                exit(-1);
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[/] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = esp->num / eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , "/",1, FN_PAREN))){
-                    printf("eval: operator '/' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[/] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , "/",1, FN_PAREN))){
-                    printf("eval: operator '/' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[/] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("[/] operator not defined!\n");
-            exit(-1);
-        }
-        else if (op == MOD){
-
-            if(!(esp = (object_t *)stack_pop(frame))){
-                printf("[%%], you can use of '%%' between two object!\n");
-                exit(-1);
-            }
-
-            if(esp->type == TP_NUMBER && eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[%%] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = (long64_t)esp->num % (long64_t)eax->num;
-
-                object_delete(esp);
-                object_delete(eax);
-
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(esp->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)esp->ptr , "%",1, FN_PAREN))){
-                    printf("eval: operator '%%' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[%%] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , "%",1, FN_PAREN))){
-                    printf("eval: operator '%%' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, esp);
-
-                object_t *obj;
-
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("[%%] object not defined!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("[%%] operator not defined!\n");
-            exit(-1);
-        }
-
-        else if (op == VAR){
-            c = c->next;
-
-            if(ecx){
-				class_t *rbx = nullptr;
-				if((rbx = class_find(ecx, (char *)c->value))){
-					if(!(egx = pedar_malloc(sizeof(variable_t)))){
-		                printf("object, bad memory!\n");
-		                exit(-1);
-		            }
-					egx->key = (char *)c->value;
-					if(!(egx->value = pedar_object_malloc(sizeof(void *)))){
-				        printf("object, bad memory!\n");
-				        exit(-1);
-				    }
-					egx->value->type = TP_CLASS;
-					egx->value->level = LEVEL_REGISTER;
-					egx->value->ptr = rbx;
-					table_rpush(efx ? efx->variables : epx->variables, (value_p)egx);
-					eax = egx->value;
-					c = c->next;
-					continue;
-				}
-
-				if((egx = class_getvar(ecx, (char *)c->value))){
-                    eax = egx->value;
-                    c = c->next;
-                    continue;
-                }
-            }
-
-			if(efx){
-                if((egx = variable_get(efx->variables, (char *)c->value))){
-                    eax = egx->value;
-                    c = c->next;
-                    continue;
-                }
-            }
-
-            if((egx = class_getvar(epx, (char *)c->value))){
-                eax = egx->value;
-                c = c->next;
-                continue;
-            }
-
-            if(!(egx = pedar_malloc(sizeof(variable_t)))){
-                printf("object, bad memory!\n");
-                exit(-1);
-            }
-
-			class_t *rbx = nullptr;
-			if(!(rbx = class_get(ecx ? ecx : epx, (char *)c->value))){
-				rbx = class_get(base, (char *)c->value);
-			}
-
-            egx->key = (char *)c->value;
-
-			if(!(egx->value = pedar_object_malloc(sizeof(void *)))){
-				printf("object, bad memory!\n");
+typedef struct context {
+	/* class save refrence of parrent class */
+	class_t *class;
+	table_t *table_class;
+
+	/* fn save refrence of path func in variables */
+	function_t *fn;
+	table_t *table_fn;
+
+	class_t *floating;
+	table_t *table_floating;
+
+	frame_t *frame;
+	table_t *table_frame;
+
+	table_t *table_be;
+	table_t *table_ne;
+
+	variable_t 	*variable;
+	object_t *object;
+
+	class_t *base;
+	array_t *code;
+} context_t;
+
+context_t *
+context_update(
+	context_t *ctx,
+	class_t *class,
+	table_t *table_class,
+	function_t *fn,
+	table_t *table_fn,
+	class_t *floating,
+	table_t *table_floating,
+	frame_t *frame,
+	table_t *table_frame,
+	table_t *table_be,
+	table_t *table_ne,
+	variable_t *variable,
+	object_t *object,
+	class_t *base,
+	array_t *code){
+
+	ctx->class = class;
+	ctx->table_class = table_class;
+	ctx->fn = fn;
+	ctx->table_fn = table_fn;
+	ctx->floating = floating;
+	ctx->table_floating = table_floating;
+	ctx->frame = frame;
+	ctx->table_frame = table_frame;
+	ctx->table_be = table_be;
+	ctx->table_ne = table_ne;
+	ctx->variable = variable;
+	ctx->object = object;
+	ctx->base = base;
+	ctx->code = code;
+
+	return ctx;
+}
+
+iarray_t *
+fn_prepare(context_t *ctx, iarray_t *c, class_t *class, char *name, value_t nparam, fn_type_t type){
+	// save current fn
+	table_rpush(ctx->table_fn, (value_p)ctx->fn);
+
+	// create entry for new fn
+	value_t i;
+	frame_t *frame2 = frame_create(ctx->class, ctx->fn);
+	for(i = 0; i < nparam; i++){
+		frame_push(frame2, frame_pop(ctx->frame));
+	}
+
+	// create return point
+	object_t *obj;
+	if(!(obj = pedar_object_malloc(sizeof(double)))){
+		printf("unable to prepare function!\n");
+		exit(-1);
+	}
+	obj->type = TP_ADRS;
+	obj->ptr = (value_p)c->next;
+
+	frame_push(ctx->frame, obj);
+	table_rpush(ctx->table_frame, (value_p)ctx->frame);
+
+	ctx->frame = frame2;
+
+	if(!(ctx->fn = function_get(class, name, nparam, type))){
+		printf("unable to found function '%s' in class %s!\n", name, class->key);
+		exit(-1);
+	}
+
+	ctx->floating = nullptr;
+
+	return (iarray_t *)ctx->fn->start;
+}
+
+iarray_t *
+decode_or(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[||], you can use of '||' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[or] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = (value_t)esp->num || (value_t)ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "||", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, "||", 1, FN_PAREN);
+	}
+
+	printf("[||] operator not defined!\n");
+	exit(-1);
+}
+
+iarray_t *
+decode_lor(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[|], you can use of '|' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[lor] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = (value_t)esp->num | (value_t)ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "|", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, "|", 1, FN_PAREN);
+	}
+
+	printf("[|] operator not defined!\n");
+	exit(-1);
+}
+
+iarray_t *
+decode_xor(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[^], you can use of '^' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[^] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = (value_t)esp->num ^ (value_t)ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "^", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, "^", 1, FN_PAREN);
+	}
+
+	printf("[^] operator not defined!\n");
+	exit(-1);
+}
+
+iarray_t *
+decode_and(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[&&], you can use of '&&' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[&&] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = (value_t)esp->num && (value_t)ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "&&", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, "&&", 1, FN_PAREN);
+	}
+
+	printf("[&&] operator not defined!\n");
+	exit(-1);
+}
+
+iarray_t *
+decode_land(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[&], you can use of '&' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[&] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = (value_t)esp->num & (value_t)ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "&", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, "&", 1, FN_PAREN);
+	}
+
+	printf("[&] operator not defined!\n");
+	exit(-1);
+}
+
+iarray_t *
+decode_eq(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[==], you can use of '==' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[or] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = esp->num == ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "==", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, "==", 1, FN_PAREN);
+	}
+	else if(esp->type == TP_DATA && ctx->object->type == TP_DATA){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[==] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = data_compare((table_t *)esp->ptr, (table_t *)ctx->object->ptr);
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+
+	printf("[==] operator not defined!\n");
+	exit(-1);
+}
+
+iarray_t *
+decode_ne(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[!=], you can use of '!=' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[!=] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = esp->num != ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "!=", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, "!=", 1, FN_PAREN);
+	}
+	else if(esp->type == TP_DATA && ctx->object->type == TP_DATA){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[!=] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = !data_compare((table_t *)esp->ptr, (table_t *)ctx->object->ptr);
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+
+	printf("[!=] operator not defined %d %d !\n", ctx->object->type, esp->type);
+	exit(-1);
+}
+
+iarray_t *
+decode_lt(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[<], you can use of '<' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[<] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = esp->num < ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "<", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, "<", 1, FN_PAREN);
+	}
+
+	printf("[<] operator not defined!\n");
+	exit(-1);
+}
+
+iarray_t *
+decode_le(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[<=], you can use of '<=' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[<=] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = esp->num <= ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "<=", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, "<=", 1, FN_PAREN);
+	}
+
+	printf("[<=] operator not defined!\n");
+	exit(-1);
+}
+
+iarray_t *
+decode_gt(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[>], you can use of '>' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[>] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = esp->num > ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, ">", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, ">", 1, FN_PAREN);
+	}
+
+	printf("[>] operator not defined!\n");
+	exit(-1);
+}
+
+iarray_t *
+decode_ge(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[>=], you can use of '>=' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[or] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = esp->num >= ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, ">=", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, ">=", 1, FN_PAREN);
+	}
+
+	printf("[>=] operator not defined!\n");
+	exit(-1);
+}
+
+iarray_t *
+decode_lshift(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[<<], you can use of '<<' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[<<] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = (value_t)esp->num << (value_t)ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "<<", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, "<<", 1, FN_PAREN);
+	}
+
+	printf("[<<] operator not defined!\n");
+	exit(-1);
+}
+
+iarray_t *
+decode_rshift(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[>>], you can use of '>>' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[>>] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = (value_t)esp->num >> (value_t)ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, ">>", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, ">>", 1, FN_PAREN);
+	}
+
+	printf("[>>] operator not defined!\n");
+	exit(-1);
+}
+
+iarray_t *
+decode_add(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[+], you can use of '+' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[+] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = esp->num + ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "+", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, "+", 1, FN_PAREN);
+	}
+
+	printf("[+] operator not defined!\n");
+	exit(-1);
+}
+
+iarray_t *
+decode_sub(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[-], you can use of '-' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[or] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = esp->num - ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "-", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, "-", 1, FN_PAREN);
+	}
+
+	printf("[-] operator not defined!\n");
+	exit(-1);
+}
+
+iarray_t *
+decode_mul(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[*], you can use of '*' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[*] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = esp->num * ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "*", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, "*", 1, FN_PAREN);
+	}
+
+	printf("[*] operator not defined!\n");
+	exit(-1);
+}
+
+iarray_t *
+decode_div(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[/], you can use of '/' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[/] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = esp->num / ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "/", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, "/", 1, FN_PAREN);
+	}
+
+	printf("[/] operator not defined!\n");
+	exit(-1);
+}
+
+iarray_t *
+decode_mod(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("[%%], you can use of '%%' between two object!\n");
+		exit(-1);
+	}
+
+	if(esp->type == TP_NUMBER && ctx->object->type == TP_NUMBER){
+		object_t *obj;
+		if(!(obj = pedar_object_malloc(sizeof(double)))){
+			printf("[%%] object not defined!\n");
+			exit(-1);
+		}
+
+		obj->type = TP_NUMBER;
+		obj->num = (value_t)esp->num % (value_t)ctx->object->num;
+
+		object_delete(esp);
+		object_delete(ctx->object);
+
+		ctx->object = obj;
+		return c->next;
+	}
+	else if(esp->type == TP_CLASS){
+		frame_push(ctx->frame, esp);
+		return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "%", 1, FN_PAREN);
+	}
+	else if(ctx->object->type == TP_CLASS){
+		frame_push(ctx->frame, ctx->object);
+		return fn_prepare(ctx, c, (class_t *)esp->ptr, "%", 1, FN_PAREN);
+	}
+
+	printf("[%%] operator not defined!\n");
+	exit(-1);
+}
+
+
+// VAR IMM DATA SD LD PUSH JMP JZ JNZ CENT CLEV CALL ENT LEV THIS SUPER CHG
+// SIZEOF TYPEOF DELETE INSERT COUNT BREAK NEW REF RET
+
+iarray_t *
+decode_var(context_t *ctx, iarray_t *c) {
+	c = c->next;
+
+	if(ctx->floating){
+		class_t *rbx = nullptr;
+		if((rbx = class_find(ctx->floating, (char *)c->value))){
+			if(!(ctx->variable = pedar_malloc(sizeof(variable_t)))){
+				printf("unable to alloc memory!\n");
 				exit(-1);
 			}
-			egx->value->level = LEVEL_REGISTER;
-			egx->value->type = rbx ? TP_CLASS : TP_NULL;
-			egx->value->ptr = rbx;
+			ctx->variable->key = (char *)c->value;
+			if(!(ctx->variable->value = pedar_object_malloc(sizeof(void *)))){
+				printf("unable to alloc memory!\n");
+				exit(-1);
+			}
+			ctx->variable->value->type = TP_CLASS;
+			ctx->variable->value->level = LEVEL_REGISTER;
+			ctx->variable->value->ptr = rbx;
+			table_rpush(ctx->fn ? ctx->fn->variables : ctx->class->variables, (value_p)ctx->variable);
+			ctx->object = ctx->variable->value;
+			return c->next;
+		}
 
-            table_rpush(efx ? efx->variables : epx->variables, (value_p)egx);
+		if((ctx->variable = class_getvar(ctx->floating, (char *)c->value))){
+			ctx->object = ctx->variable->value;
+			return c->next;
+		}
+	}
 
-            eax = egx->value;
+	if(ctx->fn){
+		if((ctx->variable = variable_get(ctx->fn->variables, (char *)c->value))){
+			ctx->object = ctx->variable->value;
+			return c->next;
+		}
+	}
 
-            c = c->next;
-            continue;
-        }
-        else if (op == IMM){
-            // load immediate value to eax
-            c = c->next;
-            eax = nullptr;
+	if((ctx->variable = class_getvar(ctx->class, (char *)c->value))){
+		ctx->object = ctx->variable->value;
+		return c->next;
+	}
 
-            iarray_t *next = c->next;
+	if(!(ctx->variable = pedar_malloc(sizeof(variable_t)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
 
-            if(next->value == TP_NULL){
-                if(!(eax = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                eax->type = TP_NULL;
-                eax->ptr = 0;
-                c = next->next;
-                continue;
-            }
-            else if(next->value == TP_IMM){
-                if(!(eax = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                eax->type = TP_NUMBER;
-                eax->num = (long64_t)c->value;
-                c = next->next;
-                continue;
-            }
-            else if(next->value == TP_NUMBER){
-                if(!(eax = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                eax->type = TP_NUMBER;
-                eax->num = utils_atof((char *)c->value);
-                c = next->next;
-                continue;
-            }
-            else if(next->value == TP_CHAR){
-                if(!(eax = pedar_object_malloc(sizeof(char)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                eax->type = TP_CHAR;
-                eax->num = (char)c->value;
-                c = next->next;
-                continue;
-            }
-            else if(next->value == TP_DATA){
-                if(!(eax = pedar_object_malloc(sizeof(void *)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                eax->type = TP_DATA;
-                eax->ptr = data_from ((char *)c->value);
-                c = next->next;
-                continue;
-            }
+	class_t *rbx = nullptr;
+	if(!(rbx = class_get(ctx->floating ? ctx->floating : ctx->class, (char *)c->value))){
+		rbx = class_get(ctx->base, (char *)c->value);
+	}
 
-            printf("[IMM] unknown type %lld!\n", next->value);
-            exit(-1);
-        }
-        else if (op == DATA){
-            c = c->next;
-            long64_t cnt = c->value;
+	ctx->variable->key = (char *)c->value;
 
-            table_t *tbl = table_create();
+	if(!(ctx->variable->value = pedar_object_malloc(sizeof(void *)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+	ctx->variable->value->level = LEVEL_REGISTER;
+	ctx->variable->value->type = rbx ? TP_CLASS : TP_NULL;
+	ctx->variable->value->ptr = rbx;
 
-            long64_t i;
-            for(i = 0; i < cnt; i++){
-                table_lpush(tbl, (value_p)stack_pop(frame));
-            }
+	table_rpush(ctx->fn ? ctx->fn->variables : ctx->class->variables, (value_p)ctx->variable);
 
-			variable_t *ebx;
-			ebx = (variable_t *)table_content(table_rpop(stack_ebx));
+	ctx->object = ctx->variable->value;
 
-            if(ebx && ebx->value->ptr){
-                // call subroutine
-                if(ebx->value->type == TP_DATA){
-                    esp = (object_t *)table_content(table_rpop(tbl));
-					itable_t *rp;
-                    if(!(rp = table_at((table_t *)ebx->value->ptr, esp->num))){
-                        printf("[key] is gritter than array size!\n");
-                        exit(-1);
-                    }
+	return c->next;
+}
 
-                    if(!(rp->value = rp->value ? rp->value : pedar_object_malloc(sizeof(double)))){
-                        printf("object, bad memory!\n");
-                        exit(-1);
-                    }
+iarray_t *
+decode_imm(context_t *ctx, iarray_t *c) {
+	// load immediate value to object
+	c = c->next;
+	ctx->object = nullptr;
 
-                    eax = (object_t *)rp->value;
+	iarray_t *next = c->next;
 
-                    c = c->next;
-                    continue;
-                }
-                else if(ebx->value->type == TP_CLASS){
-                    class_t *clscur = (class_t *)ebx->value->ptr;
+	if(next->value == TP_NULL){
+		if(!(ctx->object = pedar_object_malloc(sizeof(double)))){
+			printf("unable to alloc memory!\n");
+			exit(-1);
+		}
+		ctx->object->type = TP_NULL;
+		ctx->object->ptr = 0;
+		return next->next;
+	}
+	else if(next->value == TP_IMM){
+		if(!(ctx->object = pedar_object_malloc(sizeof(double)))){
+			printf("unable to alloc memory!\n");
+			exit(-1);
+		}
+		ctx->object->type = TP_NUMBER;
+		ctx->object->num = (value_t)c->value;
+		return next->next;
+	}
+	else if(next->value == TP_NUMBER){
+		if(!(ctx->object = pedar_object_malloc(sizeof(double)))){
+			printf("unable to alloc memory!\n");
+			exit(-1);
+		}
+		ctx->object->type = TP_NUMBER;
+		ctx->object->num = utils_atof((char *)c->value);
+		return next->next;
+	}
+	else if(next->value == TP_CHAR){
+		if(!(ctx->object = pedar_object_malloc(sizeof(char)))){
+			printf("unable to alloc memory!\n");
+			exit(-1);
+		}
+		ctx->object->type = TP_CHAR;
+		ctx->object->num = (char)c->value;
+		return next->next;
+	}
+	else if(next->value == TP_DATA){
+		if(!(ctx->object = pedar_object_malloc(sizeof(void *)))){
+			printf("unable to alloc memory!\n");
+			exit(-1);
+		}
+		ctx->object->type = TP_DATA;
+		ctx->object->ptr = data_from ((char *)c->value);
+		return next->next;
+	}
 
-                    table_rpush(stack_efx, (value_p)efx);
+	printf("IMM, unknown type!\n");
+	exit(-1);
+}
 
-                    if(!(efx = function_get(clscur ,clscur->key ,cnt, FN_BRACKET))){
-                        printf("call %s[], not define this function!\n", (char *)clscur->key);
-                        exit(-1);
-                    }
+iarray_t *
+decode_data(context_t *ctx, iarray_t *c) {
+	c = c->next;
+	value_t cnt = c->value;
 
-					if(!(esp = pedar_object_malloc(sizeof(double)))){
-						printf("object, bad memory!\n");
-						exit(-1);
-					}
-					esp->type = TP_ADRS;
-					esp->ptr = (value_p)c->next;
+	variable_t *ebx;
+	ebx = (variable_t *)table_content(table_rpop(ctx->table_be));
 
-					stack_push(frame, esp);
-                    table_rpush(stack_frame, (value_p)frame);
+	if(ebx && ebx->value->ptr){
+		// call subroutine
+		if(ebx->value->type == TP_DATA){
+			object_t *esp;
+			esp = frame_pop(ctx->frame);
 
-					stack_t *newframe = stack_create(epx, efx);
-
-					while((esp = (object_t *)table_lpop(tbl))){
-						stack_push(newframe, esp);
-					}
-
-                    frame = newframe;
-
-                    c = (iarray_t *)efx->start;
-                    continue;
-                }
-
-                printf("call %s[], not define for this variable!\n", ebx->key);
-                exit(-1);
-            }
-
-            if(!(eax = pedar_object_malloc(sizeof(void *)))){
-                printf("object, bad memory!\n");
-                exit(-1);
-            }
-
-            eax->type = TP_DATA;
-            eax->ptr = tbl;
-
-            c = c->next;
-            continue;
-        }
-        else if (op == SD){
-            // save data to address, value in eax, address on stack_frame
-            if(!(esp = (object_t *)stack_pop(frame))){
-				printf("save data, bad pop data!\n");
-                exit(-1);
-            }
-
-            if(eax->type == TP_NULL){
-				if(esp->type != eax->type){
-					esp->ptr = pedar_object_realloc(esp->ptr, sizeof(void *));;
-				}
-                esp->ptr = eax->ptr;
-            }
-            else if(eax->type == TP_CHAR){
-				if(esp->type != eax->type){
-					esp->ptr = pedar_object_realloc(esp->ptr, sizeof(char));
-				}
-                esp->num = eax->num;
-            }
-            else if(eax->type == TP_NUMBER){
-				if(esp->type != eax->type){
-					esp->ptr = pedar_object_realloc(esp->ptr, sizeof(double));
-				}
-                esp->num = eax->num;
-            }
-            else if(eax->type == TP_DATA){
-				if(esp->type != eax->type){
-					esp->ptr = pedar_object_realloc(esp->ptr, sizeof(void *));;
-				}
-                esp->ptr = data_clone((table_t *)eax->ptr);
-            }
-            else if(eax->type == TP_CLASS){
-				if(esp->type != eax->type){
-					esp->ptr = pedar_object_realloc(esp->ptr, sizeof(void *));;
-				}
-                esp->ptr = (class_t *)eax->ptr;
-            }
-
-            esp->type = eax->type;
-
-            c = c->next;
-            continue;
-        }
-        else if (op == LD){
-			if(!(esp = (object_t *)stack_pop(frame))){
-                printf("load data, bad pop data!\n");
-                exit(-1);
-            }
-
-			if(eax->level == LEVEL_REFRENCE){
-				esp->level = LEVEL_REFRENCE;
-				egx->value = esp;
-				object_delete(eax);
-				eax = esp;
-				c = c->next;
-	            continue;
+			itable_t *rp;
+			if(!(rp = table_at((table_t *)ebx->value->ptr, esp->num))){
+				printf("out of range [%lld]!\n", (value_t)esp->num);
+				exit(-1);
 			}
 
-            if(esp->type == TP_NULL){
-				if(esp->type != eax->type){
-					eax->ptr = pedar_object_realloc(eax->ptr, sizeof(void *));
+			if(!(rp->value = rp->value ? rp->value : pedar_object_malloc(sizeof(double)))){
+				printf("unable to alloc memory!\n");
+				exit(-1);
+			}
+
+			ctx->object = (object_t *)rp->value;
+
+			return c->next;
+		}
+		else if(ebx->value->type == TP_CLASS){
+			class_t *class = (class_t *)ebx->value->ptr;
+			return fn_prepare(ctx, c, class, class->key, cnt, FN_BRACKET);
+		}
+
+		printf("call %s[], not define for this variable!\n", ebx->key);
+		exit(-1);
+	}
+
+	table_t *tbl = table_create();
+
+	value_t i;
+	for(i = 0; i < cnt; i++){
+		table_lpush(tbl, (value_p)frame_pop(ctx->frame));
+	}
+
+	if(!(ctx->object = pedar_object_malloc(sizeof(void *)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+
+	ctx->object->type = TP_DATA;
+	ctx->object->ptr = tbl;
+
+	return c->next;
+}
+
+iarray_t *
+decode_sd(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	// save data to address, value in object, address on table_frame
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("save data, bad pop data!\n");
+		exit(-1);
+	}
+
+	switch (ctx->object->type) {
+		case TP_NULL:
+			if(esp->type != ctx->object->type){
+				esp->ptr = pedar_object_realloc(esp->ptr, sizeof(void *));;
+			}
+			esp->ptr = ctx->object->ptr;
+			break;
+		case TP_CHAR:
+			if(esp->type != ctx->object->type){
+				esp->ptr = pedar_object_realloc(esp->ptr, sizeof(char));
+			}
+			esp->num = ctx->object->num;
+			break;
+		case TP_NUMBER:
+			if(esp->type != ctx->object->type){
+				esp->ptr = pedar_object_realloc(esp->ptr, sizeof(double));
+			}
+			esp->num = ctx->object->num;
+			break;
+		case TP_DATA:
+			if(esp->type != ctx->object->type){
+				esp->ptr = pedar_object_realloc(esp->ptr, sizeof(void *));;
+			}
+			esp->ptr = data_clone((table_t *)ctx->object->ptr);
+			break;
+		case TP_CLASS:
+			if(esp->type != ctx->object->type){
+				esp->ptr = pedar_object_realloc(esp->ptr, sizeof(void *));;
+			}
+			esp->ptr = (class_t *)ctx->object->ptr;
+			break;
+		default:
+			printf("SD, unknown type!\n");
+			exit(-1);
+	}
+
+	esp->type = ctx->object->type;
+	ctx->object = esp;
+
+	return c->next;
+}
+
+iarray_t *
+decode_ld(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("load data, bad pop data!\n");
+		exit(-1);
+	}
+
+	if(ctx->object->level == LEVEL_REFRENCE){
+		esp->level = LEVEL_REFRENCE;
+		ctx->variable->value = esp;
+		object_delete(ctx->object);
+		ctx->object = esp;
+		return c->next;
+	}
+
+	switch (esp->type) {
+		case TP_NULL:
+			if(esp->type != ctx->object->type){
+				ctx->object->ptr = pedar_object_realloc(ctx->object->ptr, sizeof(void *));
+			}
+			ctx->object->ptr = esp->ptr;
+			break;
+		case TP_CHAR:
+			if(esp->type != ctx->object->type){
+				ctx->object->ptr = pedar_object_realloc(ctx->object->ptr, sizeof(char));
+			}
+			ctx->object->num = esp->num;
+			break;
+		case TP_NUMBER:
+			if(esp->type != ctx->object->type){
+				ctx->object->ptr = pedar_object_realloc(ctx->object->ptr, sizeof(double));
+			}
+			ctx->object->num = esp->num;
+			break;
+		case TP_DATA:
+			if(esp->type != ctx->object->type){
+				ctx->object->ptr = pedar_object_realloc(ctx->object->ptr, sizeof(void *));
+			}
+			ctx->object->ptr = esp->ptr;
+			break;
+		case TP_CLASS:
+			if(esp->type != ctx->object->type){
+				ctx->object->ptr = pedar_object_realloc(ctx->object->ptr, sizeof(void *));
+			}
+			ctx->object->ptr = (class_t *)esp->ptr;
+			break;
+		default:
+			printf("LD, unknown type!\n");
+			exit(-1);
+	}
+
+	ctx->object->type = esp->type;
+
+	return c->next;
+}
+
+iarray_t *
+decode_push(context_t *ctx, iarray_t *c) {
+	// push the value of object onto the table_frame
+	frame_push(ctx->frame, ctx->object);
+	ctx->object = nullptr;
+	return c->next;
+}
+
+iarray_t *
+decode_jmp(context_t *ctx, iarray_t *c) {
+	// jump to the address
+	c = c->next;
+	return (iarray_t *)c->value;
+}
+
+iarray_t *
+decode_jz(context_t *ctx, iarray_t *c) {
+	// jump if object is zero
+	c = c->next;
+	return (ctx->object->num) ? c->next : (iarray_t *)c->value;
+}
+
+iarray_t *
+decode_jnz(context_t *ctx, iarray_t *c) {
+	// jump if object is not zero
+	c = c->next;
+	return (ctx->object->num) ? (iarray_t *)c->value : c->next;
+}
+
+iarray_t *
+decode_cent(context_t *ctx, iarray_t *c) {
+	variable_t *var;
+	if(!(var = malloc(sizeof(variable_t)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+
+	var->key = ctx->class->key;
+	if(!(var->value = pedar_object_malloc(sizeof(void *)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+	var->value->type = TP_CLASS;
+	var->value->ptr = ctx->class;
+
+	table_rpush(ctx->class->variables, (value_p)var);
+
+	if(!(var = malloc(sizeof(variable_t)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+
+	var->key = ctx->class->super->key;
+	if(!(var->value = pedar_object_malloc(sizeof(void *)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+	var->value->type = TP_CLASS;
+	var->value->ptr = ctx->class->super;
+
+	table_rpush(ctx->class->variables, (value_p)var);
+
+	ctx->class->type = CLASS_BURN;
+
+	return c->next;
+}
+
+iarray_t *
+decode_clev(context_t *ctx, iarray_t *c) {
+	ctx->fn = (function_t *)table_content(table_rpop(ctx->table_fn));
+	ctx->class = (class_t *)table_content(table_rpop(ctx->table_class));
+	ctx->frame = (frame_t *)table_content(table_rpop(ctx->table_frame));
+	if(!ctx->frame){
+		printf("point class leave, free frame!\n");
+		exit(-1);
+	}
+	object_t *esp;
+	esp = (object_t *)frame_pop(ctx->frame);
+	return (iarray_t *)esp->ptr;
+}
+
+iarray_t *
+decode_call(context_t *ctx, iarray_t *c) {
+	// call subroutine
+	object_t *esp;
+	esp = (object_t *)frame_pop(ctx->frame);
+
+	variable_t *var;
+	var = (variable_t *)table_content(table_rpop(ctx->table_ne));
+
+	ctx->floating = (class_t *)table_content(table_rpop(ctx->table_floating));
+
+	return fn_prepare(ctx, c, ctx->floating ? ctx->floating : ctx->class, var->key, esp->num, FN_PAREN);
+}
+
+iarray_t *
+decode_ent(context_t *ctx, iarray_t *c) {
+	table_rpush(ctx->table_class, (value_p)ctx->class);
+	ctx->class = ctx->fn->super;
+	return c->next;
+}
+
+iarray_t *
+decode_lev(context_t *ctx, iarray_t *c) {
+	if(ctx->fn){
+		if(strncmp(ctx->class->key, ctx->fn->key, max(strlen(ctx->class->key), strlen(ctx->fn->key))) == 0){
+			if(!(ctx->variable = variable_get(ctx->class->variables, ctx->class->key))){
+				printf("'this' object not defined in class %s.\n", ctx->class->key);
+				exit(-1);
+			}
+			ctx->object = ctx->variable->value;
+		}
+	}
+
+	ctx->fn = (function_t *)table_content(table_rpop(ctx->table_fn));
+
+	ctx->class = (class_t *)table_content(table_rpop(ctx->table_class));
+
+	ctx->frame = (frame_t *)table_content(table_rpop(ctx->table_frame));
+
+	if(!ctx->frame){
+		printf("breakpoint function leave, free frame!\n");
+		exit(-1);
+	}
+
+	object_t *esp;
+	esp = (object_t *)frame_pop(ctx->frame);
+	return (iarray_t *)esp->ptr;
+}
+
+iarray_t *
+decode_this(context_t *ctx, iarray_t *c) {
+	if(!(ctx->variable = variable_get(ctx->class->variables, ctx->class->key))){
+		printf("'this' object not defined in class %s.\n", ctx->class->key);
+		exit(-1);
+	}
+	ctx->object = ctx->variable->value;
+	return c->next;
+}
+
+iarray_t *
+decode_super(context_t *ctx, iarray_t *c) {
+	if(!(ctx->variable = variable_get(ctx->class->variables, ctx->class->super->key))){
+		printf("'super' object not defined.\n");
+		exit(-1);
+	}
+	ctx->object = ctx->variable->value;
+	return c->next;
+}
+
+iarray_t *
+decode_chg(context_t *ctx, iarray_t *c) {
+	if(ctx->object->type == TP_CLASS){
+		if((ctx->floating = (class_t *)ctx->object->ptr)){
+			table_rpush(ctx->table_floating, (value_p)ctx->floating);
+			if(ctx->floating->type == CLASS_RAW){
+				frame_t *frame2 = frame_create(ctx->class, ctx->fn);
+
+				table_rpush(ctx->table_class, (value_p)ctx->class);
+				ctx->class = ctx->floating;
+
+				table_rpush(ctx->table_fn, (value_p)ctx->fn);
+				ctx->fn = nullptr;
+
+				object_t *esp;
+				if(!(esp = pedar_object_malloc(sizeof(double)))){
+					printf("unable to alloc memory!\n");
+					exit(-1);
 				}
-                eax->ptr = esp->ptr;
-            }
-            else if(esp->type == TP_CHAR){
-				if(esp->type != eax->type){
-					eax->ptr = pedar_object_realloc(eax->ptr, sizeof(char));
-				}
-                eax->num = esp->num;
-            }
-            else if(esp->type == TP_NUMBER){
-				if(esp->type != eax->type){
-					eax->ptr = pedar_object_realloc(eax->ptr, sizeof(double));
-				}
-                eax->num = esp->num;
-            }
-            else if(esp->type == TP_DATA){
-				if(esp->type != eax->type){
-					eax->ptr = pedar_object_realloc(eax->ptr, sizeof(void *));
-				}
-                eax->ptr = esp->ptr;
-            }
-            else if(esp->type == TP_CLASS){
-				if(esp->type != eax->type){
-					eax->ptr = pedar_object_realloc(eax->ptr, sizeof(void *));
-				}
-                eax->ptr = (class_t *)esp->ptr;
-            }
+				esp->type = TP_ADRS;
+				esp->ptr = (value_p)c->next;
 
-            eax->type = esp->type;
+				frame_push(ctx->frame, esp);
+				table_rpush(ctx->table_frame, (value_p)ctx->frame);
+				ctx->frame = frame2;
 
-            c = c->next;
-            continue;
-        }
-        else if (op == PUSH){
-          // push the value of eax onto the stack_frame
-          stack_push(frame, eax);
-		  eax = nullptr;
-          c = c->next;
-          continue;
-        }
-        else if (op == JMP){
-          // jump to the address
-          c = c->next;
-          c = (iarray_t *)c->value;
-          continue;
-        }
-        else if (op == JZ){
-          // jump if eax is zero
-          c = c->next;
-          c = (eax->num) ? c->next : (iarray_t *)c->value;
-          continue;
-        }
-        else if (op == JNZ){
-          // jump if eax is not zero
-          c = c->next;
-          c = (eax->num) ? (iarray_t *)c->value : c->next;
-          continue;
-        }
-        else if (op == CENT){
-            variable_t *var;
-            if(!(var = malloc(sizeof(variable_t)))){
-                printf("object, bad memory!\n");
-                exit(-1);
-            }
+				return (iarray_t *)ctx->class->start;
+			}
+		}
+	}
+	return c->next;
+}
 
-            var->key = epx->key;
-			if(!(var->value = pedar_object_malloc(sizeof(void *)))){
-		        printf("object, bad memory!\n");
-		        exit(-1);
-		    }
-            var->value->type = TP_CLASS;
-            var->value->ptr = epx;
+iarray_t *
+decode_sizeof(context_t *ctx, iarray_t *c) {
+	object_t *obj;
+	switch (ctx->object->type) {
+		case TP_NULL:
+			if(!(obj = pedar_object_malloc(sizeof(double)))){
+				printf("unable to alloc memory!\n");
+				exit(-1);
+			}
+			obj->type = TP_NUMBER;
+			obj->num = object_sizeof(ctx->object);
+			ctx->object = obj;
+			return c->next;
+			break;
+		case TP_CHAR:
+			if(!(obj = pedar_object_malloc(sizeof(double)))){
+				printf("unable to alloc memory!\n");
+				exit(-1);
+			}
+			obj->type = TP_NUMBER;
+			obj->num = object_sizeof(ctx->object);
+			ctx->object = obj;
+			return c->next;
+			break;
+		case TP_NUMBER:
+			if(!(obj = pedar_object_malloc(sizeof(double)))){
+				printf("unable to alloc memory!\n");
+				exit(-1);
+			}
+			obj->type = TP_NUMBER;
+			obj->num = object_sizeof(ctx->object);
+			ctx->object = obj;
+			return c->next;
+			break;
+		case TP_DATA:
+			if(!(obj = pedar_object_malloc(sizeof(double)))){
+				printf("unable to alloc memory!\n");
+				exit(-1);
+			}
+			obj->type = TP_NUMBER;
+			obj->num = data_sizeof((table_t *)ctx->object->ptr);
+			ctx->object = obj;
+			return c->next;
+			break;
+		case TP_CLASS:
+			frame_push(ctx->frame, ctx->object);
+			return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "sizeof", 1, FN_PAREN);
+			break;
+		default:
+			printf("sizeof, unknown type!\n");
+			exit(-1);
+			break;
+	}
+}
 
-            table_rpush(epx->variables, (value_p)var);
+iarray_t *
+decode_typeof(context_t *ctx, iarray_t *c) {
+	object_t *obj;
+	switch (ctx->object->type) {
+		case TP_NULL:
+			if(!(obj = pedar_object_malloc(sizeof(double)))){
+				printf("unable to alloc memory!\n");
+				exit(-1);
+			}
+			obj->type = TP_DATA;
+			obj->ptr = data_from(STR_NULL);
+			ctx->object = obj;
+			return c->next;
+			break;
+		case TP_CHAR:
+			if(!(obj = pedar_object_malloc(sizeof(double)))){
+				printf("unable to alloc memory!\n");
+				exit(-1);
+			}
+			obj->type = TP_DATA;
+			obj->ptr = data_from(STR_CHAR);
+			ctx->object = obj;
+			return c->next;
+			break;
+		case TP_NUMBER:
+			if(!(obj = pedar_object_malloc(sizeof(double)))){
+				printf("unable to alloc memory!\n");
+				exit(-1);
+			}
+			obj->type = TP_DATA;
+			obj->ptr = data_from(STR_NUMBER);
+			ctx->object = obj;
+			return c->next;
+			break;
+		case TP_DATA:
+			if(!(obj = pedar_object_malloc(sizeof(double)))){
+				printf("unable to alloc memory!\n");
+				exit(-1);
+			}
+			obj->type = TP_DATA;
+			obj->ptr = data_from(STR_DATA);
+			ctx->object = obj;
+			return c->next;
+			break;
+		case TP_CLASS:
+			if(!(obj = pedar_object_malloc(sizeof(double)))){
+				printf("unable to alloc memory!\n");
+				exit(-1);
+			}
+			obj->type = TP_DATA;
+			class_t *class = ctx->object->ptr;
+			obj->ptr = data_from(class->key);
+			ctx->object = obj;
+			return c->next;
+			break;
+		default:
+			printf("typeof, unknown type!\n");
+			exit(-1);
+			break;
+	}
+}
 
-			//printf("'this' in %s\n", epx->key);
+iarray_t *
+decode_delete(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	esp = frame_pop(ctx->frame);
 
-            if(!(var = malloc(sizeof(variable_t)))){
-                printf("object, bad memory!\n");
-                exit(-1);
-            }
+	if(esp->type != TP_NUMBER){
+		printf("delete, parameters!\n");
+		exit(-1);
+	}
 
-            var->key = epx->super->key;
-			if(!(var->value = pedar_object_malloc(sizeof(void *)))){
-		        printf("object, bad memory!\n");
-		        exit(-1);
-		    }
-            var->value->type = TP_CLASS;
-            var->value->ptr = epx->super;
+	table_t *frame2 = table_create();
+	long64_t i, cnt = esp->num;
+	for(i = 0; i < cnt; i++){
+		table_rpush(frame2, (value_p)frame_pop(ctx->frame));
+	}
 
-            table_rpush(epx->variables, (value_p)var);
+	esp = frame_pop(ctx->frame);
 
-			//printf("'super' in %s\n", epx->key);
+	if(esp->type == TP_DATA){
+		table_t *tbl = (table_t *)esp->ptr;
+		table_sort(frame2, object_sort);
+		i = -1;
+	    while((esp = (object_t *)table_content(table_lpop(frame2)))){
+			if((esp->type != TP_NUMBER) || (i == esp->num) || (esp->num < 0)){
+				object_delete(esp);
+				continue;
+			}
+			i = esp->num;
+	        itable_t *t = table_at(tbl, i);
+	        if(t && t->value){
+	            object_delete((object_t *)t->value);
+	        }
+	        table_unlink(tbl, t);
+	        object_delete(esp);
+	    }
+	}
+	else {
+	    object_delete(esp);
+	    while((esp = (object_t *)table_content(table_rpop(frame2)))){
+	        object_delete(esp);
+	    }
+	}
 
-			epx->type = CLASS_BURN;
+	return c->next;
+}
 
-            c = c->next;
-            continue;
-        }
-        else if (op == CLEV){
-            efx = (function_t *)table_content(table_rpop(stack_efx));
-            epx = (class_t *)table_content(table_rpop(stack_epx));
-            frame = (stack_t *)table_content(table_rpop(stack_frame));
-            if(!frame){
-                printf("point class leave, free frame!\n");
-                exit(-1);
-            }
-			esp = (object_t *)stack_pop(frame);
-            c = (iarray_t *)esp->ptr;
-            continue;
-        }
-        else if (op == CALL){
-            // call subroutine
-			variable_t *var = nullptr;
+iarray_t *
+decode_insert(context_t *ctx, iarray_t *c) {
+	table_t *frame2 = table_create();
+	object_t *esp;
+	esp = (object_t *)frame_pop(ctx->frame);
 
-			var = (variable_t *)table_content(table_rpop(stack_edx));
-            esp = (object_t *)stack_pop(frame);
+	if(esp->type != TP_NUMBER){
+		printf("insert, parameters!\n");
+		exit(-1);
+	}
 
-            long64_t i;
-            long64_t cnt = esp ? esp->num : 0;
+	value_t i, cnt = esp->num;
+	for(i = 0; i < cnt; i++){
+		table_rpush(frame2, (value_p)frame_pop(ctx->frame));
+	}
 
-			stack_t *newframe = stack_create(epx, efx);
+	esp = (object_t *)frame_pop(ctx->frame);
 
-            for(i = 0; i < cnt; i++){
-                stack_push(newframe, stack_pop(frame));
-            }
+	if(esp->type != TP_DATA){
+		printf("insert, first paramater should be a array data!\n");
+		exit(-1);
+	}
 
-            table_rpush(stack_efx, (value_p)efx);
+	table_t *tbl = (table_t *)esp->ptr;
 
-			ecx = (class_t *)table_content(table_rpop(stack_ecx));
+	esp = (object_t *)table_content(table_rpop(frame2));
 
-            if(!(efx = function_get(ecx ? ecx : epx ,var->key ,cnt, FN_PAREN))){
-                printf("call %s %s.%s(%lld parameters) not define this function!\n",
-                    ecx ? "ecx" : "epx", ecx ? ecx->key : epx->key, var->key, cnt);
-                exit(-1);
-            }
+	if(esp->type != TP_NUMBER){
+		printf("insert, two paramater should be index of array!\n");
+		exit(-1);
+	}
 
-            ecx = nullptr;
+	i = esp->num;
+	i = (i < 0) ? 0 : i;
 
+	itable_t *t = table_at(tbl, i);
+
+	while((esp = (object_t *)table_content(table_rpop(frame2)))){
+		t = table_insert(tbl, t, (value_p)esp);
+	}
+
+	return c->next;
+}
+
+iarray_t *
+decode_count(context_t *ctx, iarray_t *c) {
+	object_t *obj;
+	switch (ctx->object->type) {
+		case TP_NULL:
+			if(!(obj = pedar_object_malloc(sizeof(double)))){
+				printf("unable to alloc memory!\n");
+				exit(-1);
+			}
+			obj->type = TP_NUMBER;
+			obj->num = 1;
+			ctx->object = obj;
+			return c->next;
+			break;
+		case TP_CHAR:
+			if(!(obj = pedar_object_malloc(sizeof(double)))){
+				printf("unable to alloc memory!\n");
+				exit(-1);
+			}
+			obj->type = TP_NUMBER;
+			obj->num = 1;
+			ctx->object = obj;
+			return c->next;
+		break;
+		case TP_NUMBER:
+			if(!(obj = pedar_object_malloc(sizeof(double)))){
+				printf("unable to alloc memory!\n");
+				exit(-1);
+			}
+			obj->type = TP_NUMBER;
+			obj->num = 1;
+			ctx->object = obj;
+			return c->next;
+		break;
+		case TP_DATA:
+			if(!(obj = pedar_object_malloc(sizeof(double)))){
+				printf("unable to alloc memory!\n");
+				exit(-1);
+			}
+			obj->type = TP_NUMBER;
+			table_t *tbl = (table_t *)ctx->object->ptr;
+			obj->num = table_count(tbl);
+			ctx->object = obj;
+			return c->next;
+		break;
+		case TP_CLASS:
+			frame_push(ctx->frame, ctx->object);
+			return fn_prepare(ctx, c, (class_t *)ctx->object->ptr, "count", 1, FN_PAREN);
+			break;
+		default:
+			printf("count, unknown type!\n");
+			exit(-1);
+			break;
+	}
+}
+
+iarray_t *
+decode_break(context_t *ctx, iarray_t *c) {
+	iarray_t *b = c->next;
+	while(b != ctx->code->begin){
+		if(b->value == LOPE){
+			c = b;
+			break;
+		}
+		b = b->next;
+	}
+	return c->next;
+}
+
+iarray_t *
+decode_new(context_t *ctx, iarray_t *c) {
+	if(ctx->object->type == TP_CLASS){
+		if((ctx->floating = (class_t *)ctx->object->ptr)){
+			frame_t *frame2 = frame_create(ctx->class, ctx->fn);
+
+			table_rpush(ctx->table_class, (value_p)ctx->class);
+			ctx->class = (ctx->floating->type == CLASS_RAW) ? ctx->floating : class_clone(ctx->floating);
+			table_rpush(ctx->table_floating, (value_p)ctx->class);
+
+			table_rpush(ctx->table_fn, (value_p)ctx->fn);
+			ctx->fn = nullptr;
+
+			object_t *esp;
 			if(!(esp = pedar_object_malloc(sizeof(double)))){
-				printf("object, bad memory!\n");
+				printf("unable to alloc memory!\n");
 				exit(-1);
 			}
 			esp->type = TP_ADRS;
 			esp->ptr = (value_p)c->next;
 
-            stack_push(frame, esp);
-            table_rpush(stack_frame, (value_p)frame);
+			frame_push(ctx->frame, esp);
+			table_rpush(ctx->table_frame, (value_p)ctx->frame);
+			ctx->frame = frame2;
 
-            frame = newframe;
+			return (iarray_t *)ctx->class->start;
+		}
+	}
+	return c->next;
+}
 
-            c = (iarray_t *)efx->start;
-            continue;
-        }
-        else if (op == ENT){
-            table_rpush(stack_epx, (value_p)epx);
-            epx = efx->super;
-            c = c->next;
-            continue;
-        }
-        else if (op == LEV){
-			if(efx){
-				if(strncmp(epx->key, efx->key, max(strlen(epx->key), strlen(efx->key))) == 0){
-					if(!(egx = variable_get(epx->variables, epx->key))){
-		                printf("'this' object not defined in class %s.\n", epx->key);
-		                exit(-1);
-		            }
-		            eax = egx->value;
-		        }
+iarray_t *
+decode_ref(context_t *ctx, iarray_t *c) {
+	ctx->variable->value->level = LEVEL_REFRENCE;
+	return c->next;
+}
+
+iarray_t *
+decode_ret(context_t *ctx, iarray_t *c) {
+	if(ctx->object){
+		ctx->object->level = LEVEL_RESPONSE;
+	}
+	return c->next;
+}
+
+
+
+iarray_t *
+decode_rst(context_t *ctx, iarray_t *c) {
+	ctx->floating = nullptr;
+	return c->next;
+}
+
+iarray_t *
+decode_spa(context_t *ctx, iarray_t *c) {
+	table_rpush(ctx->table_ne, (value_p)ctx->variable);
+	return c->next;
+}
+
+iarray_t *
+decode_sbr(context_t *ctx, iarray_t *c) {
+	table_rpush(ctx->table_be, (value_p)ctx->variable);
+	return c->next;
+}
+
+iarray_t *
+decode_print(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+
+	table_t *parameters = table_create();
+
+	esp = (object_t *)frame_pop(ctx->frame);
+
+	value_t i, cnt = esp->num;
+
+	for(i = 0; i < cnt; i++){
+		table_rpush(parameters, (value_p)frame_pop(ctx->frame));
+	}
+
+	while((esp = (object_t *)table_content(table_rpop(parameters)))){
+		if(esp->type == TP_NULL){
+			printf("%s ", STR_NULL);
+			continue;
+		}
+		else if(esp->type == TP_DATA){
+			table_t *formated;
+			if(i > 0){
+				formated = table_create();
+				data_format((table_t *)esp->ptr, parameters, formated);
+			}
+			else {
+				formated = (table_t *)esp->ptr;
 			}
 
-            efx = (function_t *)table_content(table_rpop(stack_efx));
-
-            epx = (class_t *)table_content(table_rpop(stack_epx));
-
-            //table_destroy(frame, object_destroy);
-
-            frame = (stack_t *)table_content(table_rpop(stack_frame));
-
-            if(!frame){
-                printf("breakpoint function leave, free frame!\n");
-                exit(-1);
-            }
-
-			esp = (object_t *)stack_pop(frame);
-            c = (iarray_t *)esp->ptr;
-            continue;
-        }
-        else if (op == THIS){
-            if(!(egx = variable_get(epx->variables, epx->key))){
-                printf("'this' object not defined in class %s.\n", epx->key);
-                exit(-1);
-            }
-            eax = egx->value;
-            c = c->next;
-            continue;
-        }
-		else if (op == SUPER){
-            if(!(egx = variable_get(epx->variables, epx->super->key))){
-                printf("'super' object not defined.\n");
-                exit(-1);
-            }
-            eax = egx->value;
-            c = c->next;
-            continue;
-        }
-        else if (op == CHG){
-			if(eax->type == TP_CLASS){
-				if((ecx = (class_t *)eax->ptr)){
-					table_rpush(stack_ecx, (value_p)ecx);
-					if(ecx->type == CLASS_RAW){
-						stack_t *newframe = stack_create(epx, efx);
-
-						table_rpush(stack_epx, (value_p)epx);
-						epx = ecx;
-
-						table_rpush(stack_efx, (value_p)efx);
-			            efx = nullptr;
-
-						if(!(esp = pedar_object_malloc(sizeof(double)))){
-							printf("object, bad memory!\n");
-							exit(-1);
-						}
-						esp->type = TP_ADRS;
-						esp->ptr = (value_p)c->next;
-
-						stack_push(frame, esp);
-			            table_rpush(stack_frame, (value_p)frame);
-			            frame = newframe;
-
-			            c = (iarray_t *)epx->start;
-			            continue;
-					}
-				}
-			}
-            c = c->next;
-            continue;
-        }
-        else if (op == SIZEOF){
-			if(eax->type == TP_NULL){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                obj->type = TP_NUMBER;
-                obj->num = object_sizeof(eax);
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-			if(eax->type == TP_CHAR){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                obj->type = TP_NUMBER;
-                obj->num = object_sizeof(eax);
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-			if(eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                obj->type = TP_NUMBER;
-                obj->num = object_sizeof(eax);
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            if(eax->type == TP_DATA){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                obj->type = TP_NUMBER;
-                obj->num = data_sizeof((table_t *)eax->ptr);
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-
-                if(!(efx = function_get((class_t *)eax->ptr , "sizeof",1, FN_PAREN))){
-                  printf("operator 'sizeof' not define in this function!\n");
-                  exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
+			itable_t *t;
+			while((t = table_lpop(formated))){
+				object_t *obj = (object_t *)t->value;
+				if(obj->type != TP_CHAR){
+					printf("formated string must created of chars!\n");
 					exit(-1);
 				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
 
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
+				if(obj->num == '\\'){
+					object_delete(obj);
 
-                frame = newframe;
+					t = table_lpop(formated);
+					obj = (object_t *)t->value;
 
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("sizeof, unknown type!\n");
-            exit(-1);
-        }
-        else if (op == TYPEOF){
-            if(eax->type == TP_NULL){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                obj->type = TP_DATA;
-                obj->ptr = data_from(STR_NULL);
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            if(eax->type == TP_CHAR){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                obj->type = TP_DATA;
-                obj->ptr = data_from(STR_CHAR);
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            if(eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                obj->type = TP_DATA;
-                obj->ptr = data_from(STR_NUMBER);
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            if(eax->type == TP_DATA){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                obj->type = TP_DATA;
-                obj->ptr = data_from(STR_DATA);
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            if(eax->type == TP_CLASS){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                obj->type = TP_DATA;
-                obj->ptr = class_get_name((class_t *)eax->ptr);
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-
-            printf("eval: this type not defined.\n");
-            exit(-1);
-        }
-        else if (op == DELETE){
-			esp = (object_t *)stack_pop(frame);
-
-			if(esp->type != TP_NUMBER){
-				printf("delete, parameters!\n");
-	            exit(-1);
-			}
-
-			table_t *newframe = table_create();
-			long64_t i, cnt = esp->num;
-			for(i = 0; i < cnt; i++){
-				table_rpush(newframe, (value_p)stack_pop(frame));
-			}
-
-			esp = (object_t *)stack_pop(frame);
-
-            if(esp->type == TP_DATA){
-				table_t *tbl = (table_t *)esp->ptr;
-				table_sort(newframe, object_sort);
-				i = -1;
-                while((esp = (object_t *)table_content(table_lpop(newframe)))){
-					if((esp->type != TP_NUMBER) || (i == esp->num) || (esp->num < 0)){
-						object_delete(esp);
+					if(obj->num == 'n'){
+						printf("\n");
 						continue;
 					}
-					i = esp->num;
-                    itable_t *t = table_at(tbl, i);
-                    if(t && t->value){
-                        object_delete((object_t *)t->value);
-                    }
-                    table_unlink(tbl, t);
-                    object_delete(esp);
-                }
-            }
-            else {
-                object_delete(esp);
-                while((esp = (object_t *)table_content(table_rpop(newframe)))){
-                    object_delete(esp);
-                }
-            }
-
-            c = c->next;
-            continue;
-        }
-		else if (op == INSERT){
-			table_t *newframe = table_create();
-
-			esp = (object_t *)stack_pop(frame);
-
-			if(esp->type != TP_NUMBER){
-				printf("insert, parameters!\n");
-	            exit(-1);
-			}
-
-			long64_t i, cnt = esp->num;
-			for(i = 0; i < cnt; i++){
-				table_rpush(newframe, (value_p)stack_pop(frame));
-			}
-
-			esp = (object_t *)stack_pop(frame);
-
-			if(esp->type != TP_DATA){
-				printf("insert, first paramater should be a array data!\n");
-	            exit(-1);
-			}
-
-			table_t *tbl = (table_t *)esp->ptr;
-
-			esp = (object_t *)table_content(table_rpop(newframe));
-
-			if(esp->type != TP_NUMBER){
-				printf("insert, two paramater should be index of array!\n");
-				exit(-1);
-			}
-
-			i = esp->num;
-			i = (i < 0) ? 0 : i;
-
-			itable_t *t = table_at(tbl, i);
-
-			while((esp = (object_t *)table_content(table_rpop(newframe)))){
-				t = table_insert(tbl, t, (value_p)esp);
-			}
-
-            c = c->next;
-            continue;
-        }
-        else if (op == COUNT){
-			if(eax->type == TP_NULL){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-			if(eax->type == TP_CHAR){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            if(eax->type == TP_NUMBER){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(eax->type == TP_DATA){
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-                obj->type = TP_NUMBER;
-                table_t *tbl = (table_t *)eax->ptr;
-                obj->num = table_count(tbl);
-                eax = obj;
-                c = c->next;
-                continue;
-            }
-            else if(eax->type == TP_CLASS){
-                table_rpush(stack_efx, (value_p)efx);
-                if(!(efx = function_get((class_t *)eax->ptr , "count",1, FN_PAREN))){
-                    printf("function 'count' not define in this function!\n");
-                    exit(-1);
-                }
-
-                stack_t *newframe = stack_create(epx, efx);
-                stack_push(newframe, eax);
-
-                object_t *obj;
-                if(!(obj = pedar_object_malloc(sizeof(double)))){
-                    printf("object, bad memory!\n");
-                    exit(-1);
-                }
-
-                obj->type = TP_NUMBER;
-                obj->num = 1;
-                stack_push(newframe, obj);
-
-				if(!(esp = pedar_object_malloc(sizeof(double)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				esp->type = TP_ADRS;
-				esp->ptr = (value_p)c->next;
-
-				stack_push(frame, esp);
-                table_rpush(stack_frame, (value_p)frame);
-
-                frame = newframe;
-
-                c = (iarray_t *)efx->start;
-                continue;
-            }
-
-            printf("eval: this type not defined.\n");
-            exit(-1);
-        }
-		else if (op == BREAK){
-			iarray_t *b = c->next;
-			while(b != code->begin){
-				if(b->value == LOPE){
-					c = b;
-					break;
-				}
-				b = b->next;
-			}
-
-			c = c->next;
-			continue;
-		}
-		else if (op == NEW){
-			if(eax->type == TP_CLASS){
-				if((ecx = (class_t *)eax->ptr)){
-					stack_t *newframe = stack_create(epx, efx);
-
-					table_rpush(stack_epx, (value_p)epx);
-					epx = (ecx->type == CLASS_RAW) ? ecx : class_clone(ecx);
-					table_rpush(stack_ecx, (value_p)epx);
-
-					table_rpush(stack_efx, (value_p)efx);
-					efx = nullptr;
-
-					if(!(esp = pedar_object_malloc(sizeof(double)))){
-						printf("object, bad memory!\n");
-						exit(-1);
+					else
+					if(obj->num == 't'){
+						printf("\t");
+						continue;
 					}
-					esp->type = TP_ADRS;
-					esp->ptr = (value_p)c->next;
-
-					stack_push(frame, esp);
-					table_rpush(stack_frame, (value_p)frame);
-					frame = newframe;
-
-					c = (iarray_t *)epx->start;
-					continue;
-				}
-			}
-			c = c->next;
-			continue;
-		}
-		else if (op == REF){
-			egx->value->level = LEVEL_REFRENCE;
-			c = c->next;
-			continue;
-		}
-		else if (op == RET){
-			if(eax){
-				eax->level = LEVEL_RESPONSE;
-			}
-			c = c->next;
-			continue;
-		}
-
-        else if (op == RST){
-            ecx = nullptr;
-            c = c->next;
-            continue;
-        }
-		else if (op == SPA){
-            table_rpush(stack_edx, (value_p)egx);
-            c = c->next;
-            continue;
-        }
-        else if (op == SBR){
-            table_rpush(stack_ebx, (value_p)egx);
-            c = c->next;
-            continue;
-        }
-
-        else if (op == PRTF){
-			table_t *parameters = table_create();
-
-			esp = (object_t *)stack_pop(frame);
-
-            long64_t i, cnt = esp->num;
-
-            for(i = 0; i < cnt; i++){
-                table_rpush(parameters, (value_p)stack_pop(frame));
-            }
-
-			while((esp = (object_t *)table_content(table_rpop(parameters)))){
-				if(esp->type == TP_NULL){
-					printf("%s ", STR_NULL);
-		            continue;
-				}
-				else if(esp->type == TP_DATA){
-					table_t *formated;
-					if(i > 0){
-						formated = table_create();
-						data_format((table_t *)esp->ptr, parameters, formated);
+					else
+					if(obj->num == 'v'){
+						printf("\v");
+						continue;
 					}
-					else {
-						formated = (table_t *)esp->ptr;
+					else
+					if(obj->num == 'a'){
+						printf("\a");
+						continue;
+					}
+					else
+					if(obj->num == 'b'){
+						printf("\b");
+						continue;
 					}
 
-					itable_t *t;
-					while((t = table_lpop(formated))){
-						object_t *obj = (object_t *)t->value;
-						if(obj->type != TP_CHAR){
-							printf("formated string must created of chars!\n");
-				            exit(-1);
-						}
-
-						if(obj->num == '\\'){
-							object_delete(obj);
-
-							t = table_lpop(formated);
-							obj = (object_t *)t->value;
-
-							if(obj->num == 'n'){
-								printf("\n");
-								continue;
-							}
-							else
-							if(obj->num == 't'){
-								printf("\t");
-								continue;
-							}
-							else
-							if(obj->num == 'v'){
-								printf("\v");
-								continue;
-							}
-							else
-							if(obj->num == 'a'){
-								printf("\a");
-								continue;
-							}
-							else
-							if(obj->num == 'b'){
-								printf("\b");
-								continue;
-							}
-
-							printf("\\");
-							continue;
-						}
-
-						printf("%c", (char)obj->num);
-						object_delete(obj);
-					}
-
-		            continue;
-				}
-				else if(esp->type == TP_CHAR){
-					printf("%c", (char)esp->num);
-		            continue;
-				}
-				else if(esp->type == TP_NUMBER){
-					if((esp->num - (long64_t)esp->num) != 0){
-						printf("%.16f", esp->num);
-					}else{
-						printf("%lld", (long64_t)esp->num);
-					}
-		            continue;
-				}
-				else if(esp->type == TP_CLASS){
-					class_t *cls = (class_t *)esp->ptr;
-					printf("%s", cls->key);
-		            continue;
-				}
-				else {
-					printf("%.16f", esp->num);
-				}
-			}
-
-            c = c->next;
-            continue;
-        }
-		else if (op == FORMAT){
-			table_t *parameters = table_create();
-
-			esp = (object_t *)stack_pop(frame);
-
-			long64_t i, cnt = esp->num;
-
-            for(i = 0; i < cnt; i++){
-                table_rpush(parameters, (value_p)stack_pop(frame));
-            }
-
-			table_t *data = table_create();
-
-			while((esp = (object_t *)table_content(table_rpop(parameters)))){
-				if(esp->type != TP_DATA){
-					table_rpush(data, (value_p)esp);
+					printf("\\");
 					continue;
 				}
 
-				table_t *formated = table_create();
-				data_format((table_t *)esp->ptr, parameters, formated);
-
-				if(!(eax = pedar_object_malloc(sizeof(void *)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				eax->type = TP_DATA;
-				eax->ptr = formated;
-
-				table_rpush(data, (value_p)eax);
+				printf("%c", (char)obj->num);
+				object_delete(obj);
 			}
 
-			if(!(eax = pedar_object_malloc(sizeof(void *)))){
-				printf("object, bad memory!\n");
-				exit(-1);
-			}
-			eax->type = TP_DATA;
-			eax->ptr = data;
-
-			c = c->next;
-            continue;
+			continue;
 		}
-
-		else if (op == OPEN){
-            if(!(esp = (object_t *)stack_pop(frame))){
-				printf("open, bad pop object!\n");
-                exit(-1);
-			}
-
-			if(esp->type != TP_DATA){
-				printf("open, path must be a string!\n");
-                exit(-1);
-			}
-
-			char *path = data_to ((table_t *)esp->ptr);
-			path[table_count((table_t *)esp->ptr)] = '\0';
-
-			if(eax->type != TP_NUMBER){
-				printf("open, object not a number!\n");
-                exit(-1);
-			}
-
-			// O_WRONLY | O_RDWR | O_RDONLY | O_CREAT
-			int flag = (int)eax->num;
-
-			object_t *obj;
-            if(!(obj = pedar_object_malloc(sizeof(double)))){
-                printf("object, bad memory!\n");
-                exit(-1);
-            }
-
-			obj->type = TP_NUMBER;
-			obj->num = open(path, flag);
-
-			pedar_free(path);
-
-			object_delete (esp);
-			object_delete (eax);
-
-			eax = obj;
-
-			c = c->next;
-            continue;
-        }
-		else if (op == CLOSE){
-			if(eax->type != TP_NUMBER){
-				printf("close, object not a number!\n");
-                exit(-1);
-			}
-
-			object_t *obj;
-            if(!(obj = pedar_object_malloc(sizeof(double)))){
-                printf("object, bad memory!\n");
-                exit(-1);
-            }
-			obj->type = TP_NUMBER;
-			obj->num = close(eax->num);
-
-			object_delete (eax);
-
-			eax = obj;
-
-			c = c->next;
-            continue;
+		else if(esp->type == TP_CHAR){
+			printf("%c", (char)esp->num);
+			continue;
 		}
-		else if (op == READ){
-			if(eax->type != TP_NUMBER){
-				printf("read, object not a number!\n");
-				exit(-1);
-			}
-
-			char *buf = pedar_malloc(eax->num * sizeof(char));
-
-			object_t *obj_buf;
-            if(!(obj_buf = (object_t *)stack_pop(frame))){
-				printf("read, buffer is null!\n");
-                exit(-1);
-			}
-			obj_buf->type = TP_DATA;
-
-            if(!(esp = (object_t *)stack_pop(frame))){
-				printf("read, buffer is null!\n");
-                exit(-1);
-			}
-
-			object_t *obj;
-            if(!(obj = pedar_object_malloc(sizeof(double)))){
-                printf("object, bad memory!\n");
-                exit(-1);
-            }
-			obj->type = TP_NUMBER;
-			obj->num = read(esp->num, buf, eax->num);
-
-			obj_buf->ptr = data_from (buf);
-			pedar_free(buf);
-
-			object_delete (eax);
-
-			eax = obj;
-
-			c = c->next;
-            continue;
-        }
-		else if (op == WRITE){
-            if(!(esp = (object_t *)stack_pop(frame))){
-				printf("write, buffer is null!\n");
-                exit(-1);
-			}
-
-			char *buf = data_to ((table_t *)esp->ptr);
-
-            if(!(esp = (object_t *)stack_pop(frame))){
-				printf("write, buffer is null!\n");
-                exit(-1);
-			}
-
-			if(eax->type != TP_NUMBER){
-				printf("write, object not a number!\n");
-                exit(-1);
-			}
-
-			object_t *obj;
-            if(!(obj = pedar_object_malloc(sizeof(double)))){
-                printf("object, bad memory!\n");
-                exit(-1);
-            }
-			obj->type = TP_NUMBER;
-			obj->num = write(esp->num, buf, eax->num);
-
-			pedar_free(buf);
-
-			object_delete (eax);
-			object_delete (esp);
-
-			eax = obj;
-
-			c = c->next;
-            continue;
-        }
-		else if (op == SEEK){
-            if(!(esp = (object_t *)stack_pop(frame))){
-				printf("seek, buffer is null!\n");
-                exit(-1);
-			}
-
-			long n = esp->num;
-
-            if(!(esp = (object_t *)stack_pop(frame))){
-				printf("seek, buffer is null!\n");
-                exit(-1);
-			}
-
-			if(eax->type != TP_NUMBER){
-				printf("seek, object not a number!\n");
-                exit(-1);
-			}
-
-			object_t *obj;
-            if(!(obj = pedar_object_malloc(sizeof(double)))){
-                printf("object, bad memory!\n");
-                exit(-1);
-            }
-			obj->type = TP_NUMBER;
-			obj->num = lseek(esp->num, n, eax->num);
-
-			object_delete (eax);
-			object_delete (esp);
-
-			eax = obj;
-
-			c = c->next;
-            continue;
-        }
-
-		else if (op == RENAME){
-            if(!(esp = (object_t *)stack_pop(frame))){
-				printf("rename, bad pop object!\n");
-                exit(-1);
-			}
-
-			if(esp->type != TP_DATA){
-				printf("rename, path must be a string!\n");
-                exit(-1);
-			}
-
-			char *path = data_to ((table_t *)esp->ptr);
-			path[table_count((table_t *)esp->ptr)] = '\0';
-
-			if(eax->type != TP_DATA){
-				printf("rename, object not a string!\n");
-                exit(-1);
-			}
-
-			char *path2 = data_to ((table_t *)eax->ptr);
-			path2[table_count((table_t *)eax->ptr)] = '\0';
-
-			object_t *obj;
-            if(!(obj = pedar_object_malloc(sizeof(double)))){
-                printf("object, bad memory!\n");
-                exit(-1);
-            }
-
-			obj->type = TP_NUMBER;
-			obj->num = rename(path, path2);
-
-			pedar_free(path);
-			pedar_free(path2);
-
-			object_delete (esp);
-			object_delete (eax);
-
-			eax = obj;
-
-			c = c->next;
-            continue;
-        }
-		else if (op == CWD){
-			object_t *obj;
-			char cwd[MAX_PATH];
-			if (getcwd(cwd, sizeof(cwd)) != NULL) {
-				if(!(obj = pedar_object_malloc(sizeof(void *)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				obj->type = TP_DATA;
-				obj->ptr = data_from(cwd);
+		else if(esp->type == TP_NUMBER){
+			if((esp->num - (value_t)esp->num) != 0){
+				printf("%.16f", esp->num);
 			}else{
-				if(!(obj = pedar_object_malloc(sizeof(void *)))){
-					printf("object, bad memory!\n");
-					exit(-1);
-				}
-				obj->type = TP_DATA;
-				obj->ptr = data_from(STR_NULL);
+				printf("%lld", (value_t)esp->num);
 			}
-
-			eax = obj;
-
-			c = c->next;
-            continue;
-        }
-		else if (op == CHDIR){
-			if(eax->type != TP_DATA){
-				printf("chdir, object not a string!\n");
-                exit(-1);
-			}
-
-			char *path = data_to ((table_t *)eax->ptr);
-
-			object_t *obj;
-            if(!(obj = pedar_object_malloc(sizeof(double)))){
-                printf("object, bad memory!\n");
-                exit(-1);
-            }
-
-			obj->type = TP_NUMBER;
-			obj->num = chdir(path);
-
-			pedar_free(path);
-
-			object_delete (eax);
-
-			eax = obj;
-
-			c = c->next;
-            continue;
-        }
-		else if (op == WALK){
-			object_t *obj;
-
-			if(eax->type != TP_DATA){
-				printf("walk, object not a string!\n");
-				exit(-1);
-			}
-
-			char *path = data_to ((table_t *)eax->ptr);
-			path[table_count((table_t *)eax->ptr)] = '\0';
-
-			table_t *tbl = table_create();
-
-			DIR *dir;
-			struct dirent *ent;
-
-			if ((dir = opendir (path)) != NULL) {
-				/* print all the files and directories within directory */
-				while ((ent = readdir (dir)) != NULL) {
-					if(!(obj = pedar_object_malloc(sizeof(void *)))){
-						printf("object, bad memory!\n");
-						exit(-1);
-					}
-					obj->type = TP_DATA;
-					obj->ptr = data_from(ent->d_name);
-					table_rpush(tbl, (value_p)obj);
-				}
-				closedir (dir);
-			} else {
-			  /* could not open directory */
-			  tbl = nullptr;
-			}
-
-			if(!(obj = pedar_object_malloc(sizeof(void *)))){
-				printf("object, bad memory!\n");
-				exit(-1);
-			}
-			obj->type = TP_DATA;
-			obj->ptr = tbl;
-
-			eax = obj;
-
-			c = c->next;
-            continue;
+			continue;
 		}
-		else if (op == GETS){
-			object_t *obj;
-
-			if(!(obj = pedar_object_malloc(sizeof(void *)))){
-				printf("object, bad memory!\n");
-				exit(-1);
-			}
-
-			if(eax->type != TP_NUMBER){
-				printf("gets, object not a string!\n");
-				exit(-1);
-			}
-
-			char *str = pedar_malloc(sizeof(char) * (long64_t)eax->num);
-			fflush(stdin);
-
-			obj->type = TP_DATA;
-			obj->ptr = data_from(fgets(str,MAX_PATH,stdin));
-
-			eax = obj;
-
-			c = c->next;
+		else if(esp->type == TP_CLASS){
+			class_t *cls = (class_t *)esp->ptr;
+			printf("%s", cls->key);
 			continue;
-        }
-		else if (op == GETKEY){
-			object_t *obj;
+		}
+		else {
+			printf("%.16f", esp->num);
+		}
+	}
 
-			if(!(obj = pedar_object_malloc(sizeof(void *)))){
-				printf("object, bad memory!\n");
-				exit(-1);
-			}
+	return c->next;
+}
 
-			char str[2];
+iarray_t *
+decode_format(context_t *ctx, iarray_t *c) {
+	table_t *parameters = table_create();
 
-			str[0] = getch();
-			str[1] = '\0';
+	object_t *esp;
+	esp = (object_t *)frame_pop(ctx->frame);
 
-			obj->type = TP_DATA;
-			obj->ptr = data_from(str);
+	value_t i, cnt = esp->num;
 
-			eax = obj;
+	for(i = 0; i < cnt; i++){
+		table_rpush(parameters, (value_p)frame_pop(ctx->frame));
+	}
 
-			c = c->next;
-			continue;
-        }
+	table_t *data = table_create();
 
-		else if (op == TICK){
-			object_t *obj;
-			if(!(obj = pedar_object_malloc(sizeof(double)))){
-				printf("object, bad memory!\n");
-				exit(-1);
-			}
-			obj->type = TP_NUMBER;
-			obj->num = (long64_t)abs(clock());
-
-			eax = obj;
-
-			c = c->next;
-            continue;
-        }
-		else if (op == TIME){
-			object_t *obj;
-			if(!(obj = pedar_object_malloc(sizeof(double)))){
-				printf("object, bad memory!\n");
-				exit(-1);
-			}
-			obj->type = TP_NUMBER;
-			obj->num = (long64_t)time(NULL);
-
-			eax = obj;
-
-			c = c->next;
+	while((esp = (object_t *)table_content(table_rpop(parameters)))){
+		if(esp->type != TP_DATA){
+			table_rpush(data, (value_p)esp);
 			continue;
 		}
 
-		else if (op == SETUP){
-			c = c->next;
+		table_t *formated = table_create();
+		data_format((table_t *)esp->ptr, parameters, formated);
 
-			if(!(epx = class_get(base, (char*)c->value))){
-				printf("eval: in new operator class %s not definition!\n", (char *)c->value);
+		if(!(ctx->object = pedar_object_malloc(sizeof(void *)))){
+			printf("unable to alloc memory!\n");
+			exit(-1);
+		}
+		ctx->object->type = TP_DATA;
+		ctx->object->ptr = formated;
+
+		table_rpush(data, (value_p)ctx->object);
+	}
+
+	if(!(ctx->object = pedar_object_malloc(sizeof(void *)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+	ctx->object->type = TP_DATA;
+	ctx->object->ptr = data;
+
+	return c->next;
+}
+
+iarray_t *
+decode_open(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("open, bad pop object!\n");
+		exit(-1);
+	}
+
+	if(esp->type != TP_DATA){
+		printf("open, path must be a string!\n");
+		exit(-1);
+	}
+
+	char *path = data_to ((table_t *)esp->ptr);
+	path[table_count((table_t *)esp->ptr)] = '\0';
+
+	if(ctx->object->type != TP_NUMBER){
+		printf("open, object not a number!\n");
+		exit(-1);
+	}
+
+	// O_WRONLY | O_RDWR | O_RDONLY | O_CREAT
+	int flag = (int)ctx->object->num;
+
+	object_t *obj;
+	if(!(obj = pedar_object_malloc(sizeof(double)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+
+	obj->type = TP_NUMBER;
+	obj->num = open(path, flag);
+
+	pedar_free(path);
+
+	object_delete (esp);
+	object_delete (ctx->object);
+
+	ctx->object = obj;
+
+	return c->next;
+}
+
+iarray_t *
+decode_close(context_t *ctx, iarray_t *c) {
+	if(ctx->object->type != TP_NUMBER){
+		printf("close, object not a number!\n");
+		exit(-1);
+	}
+
+	object_t *obj;
+	if(!(obj = pedar_object_malloc(sizeof(double)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+	obj->type = TP_NUMBER;
+	obj->num = close(ctx->object->num);
+
+	object_delete (ctx->object);
+
+	ctx->object = obj;
+
+	return c->next;
+}
+
+iarray_t *
+decode_read(context_t *ctx, iarray_t *c) {
+	if(ctx->object->type != TP_NUMBER){
+		printf("read, object not a number!\n");
+		exit(-1);
+	}
+
+	char *buf = pedar_malloc(ctx->object->num * sizeof(char));
+
+	object_t *obj_buf;
+	if(!(obj_buf = (object_t *)frame_pop(ctx->frame))){
+		printf("read, buffer is null!\n");
+		exit(-1);
+	}
+	obj_buf->type = TP_DATA;
+
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("read, buffer is null!\n");
+		exit(-1);
+	}
+
+	object_t *obj;
+	if(!(obj = pedar_object_malloc(sizeof(double)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+	obj->type = TP_NUMBER;
+	obj->num = read(esp->num, buf, ctx->object->num);
+
+	obj_buf->ptr = data_from (buf);
+	pedar_free(buf);
+
+	object_delete (ctx->object);
+
+	ctx->object = obj;
+
+	return c->next;
+}
+
+iarray_t *
+decode_write(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("write, buffer is null!\n");
+		exit(-1);
+	}
+
+	char *buf = data_to ((table_t *)esp->ptr);
+
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("write, buffer is null!\n");
+		exit(-1);
+	}
+
+	if(ctx->object->type != TP_NUMBER){
+		printf("write, object not a number!\n");
+		exit(-1);
+	}
+
+	object_t *obj;
+	if(!(obj = pedar_object_malloc(sizeof(double)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+	obj->type = TP_NUMBER;
+	obj->num = write(esp->num, buf, ctx->object->num);
+
+	pedar_free(buf);
+
+	object_delete (ctx->object);
+	object_delete (esp);
+
+	ctx->object = obj;
+
+	return c->next;
+}
+
+iarray_t *
+decode_seek(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("seek, buffer is null!\n");
+		exit(-1);
+	}
+
+	long n = esp->num;
+
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("seek, buffer is null!\n");
+		exit(-1);
+	}
+
+	if(ctx->object->type != TP_NUMBER){
+		printf("seek, object not a number!\n");
+		exit(-1);
+	}
+
+	object_t *obj;
+	if(!(obj = pedar_object_malloc(sizeof(double)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+	obj->type = TP_NUMBER;
+	obj->num = lseek(esp->num, n, ctx->object->num);
+
+	object_delete (ctx->object);
+	object_delete (esp);
+
+	ctx->object = obj;
+
+	return c->next;
+}
+
+iarray_t *
+decode_rename(context_t *ctx, iarray_t *c) {
+	object_t *esp;
+	if(!(esp = (object_t *)frame_pop(ctx->frame))){
+		printf("rename, bad pop object!\n");
+		exit(-1);
+	}
+
+	if(esp->type != TP_DATA){
+		printf("rename, path must be a string!\n");
+		exit(-1);
+	}
+
+	char *path = data_to ((table_t *)esp->ptr);
+	path[table_count((table_t *)esp->ptr)] = '\0';
+
+	if(ctx->object->type != TP_DATA){
+		printf("rename, object not a string!\n");
+		exit(-1);
+	}
+
+	char *path2 = data_to ((table_t *)ctx->object->ptr);
+	path2[table_count((table_t *)ctx->object->ptr)] = '\0';
+
+	object_t *obj;
+	if(!(obj = pedar_object_malloc(sizeof(double)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+
+	obj->type = TP_NUMBER;
+	obj->num = rename(path, path2);
+
+	pedar_free(path);
+	pedar_free(path2);
+
+	object_delete (esp);
+	object_delete (ctx->object);
+
+	ctx->object = obj;
+
+	return c->next;
+}
+
+iarray_t *
+decode_cwd(context_t *ctx, iarray_t *c) {
+	object_t *obj;
+	char cwd[MAX_PATH];
+	if (getcwd(cwd, sizeof(cwd)) != NULL) {
+		if(!(obj = pedar_object_malloc(sizeof(void *)))){
+			printf("unable to alloc memory!\n");
+			exit(-1);
+		}
+		obj->type = TP_DATA;
+		obj->ptr = data_from(cwd);
+	}else{
+		if(!(obj = pedar_object_malloc(sizeof(void *)))){
+			printf("unable to alloc memory!\n");
+			exit(-1);
+		}
+		obj->type = TP_DATA;
+		obj->ptr = data_from(STR_NULL);
+	}
+
+	ctx->object = obj;
+
+	return c->next;
+}
+
+iarray_t *
+decode_chdir(context_t *ctx, iarray_t *c) {
+	if(ctx->object->type != TP_DATA){
+		printf("chdir, object not a string!\n");
+		exit(-1);
+	}
+
+	char *path = data_to ((table_t *)ctx->object->ptr);
+
+	object_t *obj;
+	if(!(obj = pedar_object_malloc(sizeof(double)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+
+	obj->type = TP_NUMBER;
+	obj->num = chdir(path);
+
+	pedar_free(path);
+
+	object_delete (ctx->object);
+
+	ctx->object = obj;
+
+	return c->next;
+}
+
+iarray_t *
+decode_walk(context_t *ctx, iarray_t *c) {
+	object_t *obj;
+
+	if(ctx->object->type != TP_DATA){
+		printf("walk, object not a string!\n");
+		exit(-1);
+	}
+
+	char *path = data_to ((table_t *)ctx->object->ptr);
+	path[table_count((table_t *)ctx->object->ptr)] = '\0';
+
+	table_t *tbl = table_create();
+
+	DIR *dir;
+	struct dirent *ent;
+
+	if ((dir = opendir (path)) != NULL) {
+		/* print all the files and directories within directory */
+		while ((ent = readdir (dir)) != NULL) {
+			if(!(obj = pedar_object_malloc(sizeof(void *)))){
+				printf("unable to alloc memory!\n");
 				exit(-1);
 			}
-
-			frame = stack_create(epx, efx);
-
-			ecx = nullptr;
-			c = (iarray_t *)epx->start;
-			continue;
+			obj->type = TP_DATA;
+			obj->ptr = data_from(ent->d_name);
+			table_rpush(tbl, (value_p)obj);
 		}
-		else if (op == EXIT){
-            break;
-        }
-        else {
-            printf("unknown instruction:%lld\n", op);
+		closedir (dir);
+	} else {
+	  /* could not open directory */
+	  tbl = nullptr;
+	}
+
+	if(!(obj = pedar_object_malloc(sizeof(void *)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+	obj->type = TP_DATA;
+	obj->ptr = tbl;
+
+	ctx->object = obj;
+
+	return c->next;
+}
+
+iarray_t *
+decode_gets(context_t *ctx, iarray_t *c) {
+	object_t *obj;
+
+	if(!(obj = pedar_object_malloc(sizeof(void *)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+
+	if(ctx->object->type != TP_NUMBER){
+		printf("gets, object not a string!\n");
+		exit(-1);
+	}
+
+	char *str = pedar_malloc(sizeof(char) * (value_t)ctx->object->num);
+	fflush(stdin);
+
+	obj->type = TP_DATA;
+	obj->ptr = data_from(fgets(str,MAX_PATH,stdin));
+
+	ctx->object = obj;
+
+	return c->next;
+}
+
+iarray_t *
+decode_getkey(context_t *ctx, iarray_t *c) {
+	object_t *obj;
+
+	if(!(obj = pedar_object_malloc(sizeof(void *)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+
+	char str[2];
+
+	str[0] = getch();
+	str[1] = '\0';
+
+	obj->type = TP_DATA;
+	obj->ptr = data_from(str);
+
+	ctx->object = obj;
+
+	return c->next;
+}
+
+iarray_t *
+decode_tick(context_t *ctx, iarray_t *c) {
+	object_t *obj;
+
+	if(!(obj = pedar_object_malloc(sizeof(double)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+	obj->type = TP_NUMBER;
+	obj->num = (value_t)clock();
+
+	ctx->object = obj;
+
+	return c->next;
+}
+
+iarray_t *
+decode_time(context_t *ctx, iarray_t *c) {
+	object_t *obj;
+
+	if(!(obj = pedar_object_malloc(sizeof(double)))){
+		printf("unable to alloc memory!\n");
+		exit(-1);
+	}
+	obj->type = TP_NUMBER;
+	obj->num = (value_t)time(NULL);
+
+	ctx->object = obj;
+
+	return c->next;
+}
+
+iarray_t *
+decode_setup(context_t *ctx, iarray_t *c) {
+	c = c->next;
+
+	if(!(ctx->class = class_get(ctx->base, (char*)c->value))){
+		printf("eval: in new operator class %s not definition!\n", (char *)c->value);
+		exit(-1);
+	}
+
+	ctx->frame = frame_create(ctx->class, ctx->fn);
+
+	ctx->floating = nullptr;
+	return (iarray_t *)ctx->class->start;
+}
+
+iarray_t *
+decode(context_t *ctx, iarray_t *c) {
+	switch (c->value) {
+		case NUL:
+			return c->next;
+			break;
+		case LOPB:
+			return c->next;
+			break;
+		case LOPE:
+			return c->next;
+			break;
+
+		case OR:
+			return decode_or(ctx, c);
+			break;
+		case LOR:
+			return decode_lor(ctx, c);
+			break;
+		case XOR:
+			return decode_xor(ctx, c);
+			break;
+		case AND:
+			return decode_and(ctx, c);
+			break;
+		case LAND:
+			return decode_land(ctx, c);
+			break;
+		case EQ:
+			return decode_eq(ctx, c);
+			break;
+		case NE:
+			return decode_ne(ctx, c);
+			break;
+		case LT:
+			return decode_lt(ctx, c);
+			break;
+		case LE:
+			return decode_le(ctx, c);
+			break;
+		case GT:
+			return decode_gt(ctx, c);
+			break;
+		case GE:
+			return decode_ge(ctx, c);
+			break;
+		case LSHIFT:
+			return decode_lshift(ctx, c);
+			break;
+		case RSHIFT:
+			return decode_rshift(ctx, c);
+			break;
+		case ADD:
+			return decode_add(ctx, c);
+			break;
+		case SUB:
+			return decode_sub(ctx, c);
+			break;
+		case MUL:
+			return decode_mul(ctx, c);
+			break;
+		case DIV:
+			return decode_div(ctx, c);
+			break;
+		case MOD:
+			return decode_mod(ctx, c);
+			break;
+
+			// VAR IMM DATA SD LD PUSH JMP JZ JNZ CENT CLEV CALL ENT LEV THIS SUPER CHG
+			// SIZEOF TYPEOF DELETE INSERT COUNT BREAK NEW REF RET
+		case VAR:
+			return decode_var(ctx, c);
+			break;
+		case IMM:
+			return decode_imm(ctx, c);
+			break;
+		case DATA:
+			return decode_data(ctx, c);
+			break;
+		case SD:
+			return decode_sd(ctx, c);
+			break;
+		case LD:
+			return decode_ld(ctx, c);
+			break;
+		case PUSH:
+			return decode_push(ctx, c);
+			break;
+		case JMP:
+			return decode_jmp(ctx, c);
+			break;
+		case JZ:
+			return decode_jz(ctx, c);
+			break;
+		case JNZ:
+			return decode_jnz(ctx, c);
+			break;
+		case CENT:
+			return decode_cent(ctx, c);
+			break;
+		case CLEV:
+			return decode_clev(ctx, c);
+			break;
+		case CALL:
+			return decode_call(ctx, c);
+			break;
+		case ENT:
+			return decode_ent(ctx, c);
+			break;
+		case LEV:
+			return decode_lev(ctx, c);
+			break;
+		case THIS:
+			return decode_this(ctx, c);
+			break;
+		case SUPER:
+			return decode_super(ctx, c);
+			break;
+		case CHG:
+			return decode_chg(ctx, c);
+			break;
+		case SIZEOF:
+			return decode_sizeof(ctx, c);
+			break;
+		case TYPEOF:
+			return decode_typeof(ctx, c);
+			break;
+		case DELETE:
+			return decode_delete(ctx, c);
+			break;
+		case INSERT:
+			return decode_insert(ctx, c);
+			break;
+		case COUNT:
+			return decode_count(ctx, c);
+			break;
+		case BREAK:
+			return decode_break(ctx, c);
+			break;
+		case NEW:
+			return decode_new(ctx, c);
+			break;
+		case REF:
+			return decode_ref(ctx, c);
+			break;
+		case RET:
+			return decode_ret(ctx, c);
+			break;
+
+		case RST:
+			return decode_rst(ctx, c);
+			break;
+		case SPA:
+			return decode_spa(ctx, c);
+			break;
+		case SBR:
+			return decode_sbr(ctx, c);
+			break;
+		case PRTF:
+			return decode_print(ctx, c);
+			break;
+		case FORMAT:
+			return decode_format(ctx, c);
+			break;
+		case OPEN:
+			return decode_open(ctx, c);
+			break;
+		case CLOSE:
+			return decode_close(ctx, c);
+			break;
+		case READ:
+			return decode_read(ctx, c);
+			break;
+		case WRITE:
+			return decode_write(ctx, c);
+			break;
+		case SEEK:
+			return decode_seek(ctx, c);
+			break;
+		case RENAME:
+			return decode_rename(ctx, c);
+			break;
+		case CWD:
+			return decode_cwd(ctx, c);
+			break;
+		case CHDIR:
+			return decode_chdir(ctx, c);
+			break;
+		case WALK:
+			return decode_walk(ctx, c);
+			break;
+		case GETKEY:
+			return decode_getkey(ctx, c);
+			break;
+		case GETS:
+			return decode_gets(ctx, c);
+			break;
+		case TICK:
+			return decode_tick(ctx, c);
+			break;
+		case TIME:
+			return decode_time(ctx, c);
+			break;
+		case SETUP:
+			return decode_setup(ctx, c);
+			break;
+		case EXIT:
+			return ctx->code->end;
+			break;
+
+		default:
+			printf("unknown instruction\n");
             exit(-1);
-        }
-    }
+	}
+
+	return c;
+}
+
+void
+eval(class_t *base, array_t *code)
+{
+    variable_t *variable = nullptr;
+
+    /* floating save refrence of current class */
+    class_t *floating = nullptr;
+
+    object_t *object = nullptr;
+
+	table_t *table_be = table_create();
+	table_t *table_floating = table_create();
+	table_t *table_ne = table_create();
+
+    /* class save refrence of parrent class */
+    class_t *class = nullptr;
+    table_t *table_class = table_create();
+
+    /* fn save refrence of path func in variables */
+    function_t *fn = nullptr;
+    table_t *table_fn = table_create();
+
+    //table_t *frame = nullptr;
+	frame_t *frame = nullptr;
+    table_t *table_frame = table_create();
+
+	context_t *ctx = pedar_malloc(sizeof(context_t));
+	ctx = context_update(
+		ctx,
+		class,
+		table_class,
+		fn,
+		table_fn,
+		floating,
+		table_floating,
+		frame,
+		table_frame,
+		table_be,
+		table_ne,
+		variable,
+		object,
+		base,
+		code
+	);
+
+	iarray_t *c = code->begin;
+	while(c != code->end){
+		//printf("decode %lld\n", c->value);
+		c = decode(ctx, c);
+	}
 }
 
 
@@ -4367,7 +3402,7 @@ main(int argc, char **argv)
         return -1;
     }
 
-    long64_t i;
+    value_t i;
     FILE *fd;
 
 	char destination [ MAX_PATH ];
@@ -4396,11 +3431,11 @@ main(int argc, char **argv)
     argv++;
 
     // Current position
-    long64_t pos = ftell(fd);
+    value_t pos = ftell(fd);
     // Go to end
     fseek(fd, 0, SEEK_END);
     // read the position which is the size
-    long64_t chunk = ftell(fd);
+    value_t chunk = ftell(fd);
     // restore original position
     fseek(fd, pos, SEEK_SET);
 

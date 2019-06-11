@@ -1,16 +1,16 @@
 #pragma once
 
 
-typedef struct frame {
+typedef struct segment {
 	value_t count;
 	object_t **value;
-} frame_t;
+} segment_t;
 
 
 typedef struct islot {
     struct islot *previous;
     struct islot *next;
-    frame_t *value;
+    segment_t *value;
 } islot_t;
 
 typedef struct slot {
@@ -18,39 +18,39 @@ typedef struct slot {
     islot_t *end;
 } slot_t;
 
-typedef struct stack {
+typedef struct frame {
 	class_t *class;
 	function_t *fn;
 
 	slot_t *slot;
-} stack_t;
+} frame_t;
+
+
+segment_t *
+segment_create();
+
+object_t *
+segment_push(segment_t *fr, object_t *value);
+
+object_t *
+segment_pop(segment_t *fr);
+
+value_t
+segment_count(segment_t *fr);
+
 
 
 frame_t *
-frame_create();
+frame_create(class_t *cls, function_t *fn);
 
 object_t *
-frame_push(frame_t *fr, object_t *value);
+frame_push(frame_t *stk, object_t *value);
 
 object_t *
-frame_pop(frame_t *fr);
-
-value_t
-frame_count(frame_t *fr);
-
-
-
-stack_t *
-stack_create(class_t *cls, function_t *fn);
-
-object_t *
-stack_push(stack_t *stk, object_t *value);
-
-object_t *
-stack_pop(stack_t *stk);
+frame_pop(frame_t *stk);
 
 void
-stack_destroy(stack_t *stk, value_t (*f)(object_t *));
+frame_destroy(frame_t *stk, value_t (*f)(object_t *));
 
 
 
@@ -60,13 +60,7 @@ slot_create();
 value_t
 slot_isempty(slot_t *slt);
 
-islot_t*
-slot_next(islot_t *current);
-
-islot_t*
-slot_previous(islot_t *current);
-
-frame_t *
+segment_t *
 slot_content(islot_t *b);
 
 value_t
@@ -85,25 +79,25 @@ islot_t*
 slot_unlink(slot_t *slt, islot_t* it);
 
 islot_t*
-slot_sort(slot_t *slt, value_t (*f)(frame_t *, frame_t *));
+slot_sort(slot_t *slt, value_t (*f)(segment_t *, segment_t *));
 
 islot_t*
-slot_remove(slot_t *slt, value_t (*f)(frame_t *));
+slot_remove(slot_t *slt, value_t (*f)(segment_t *));
 
 islot_t*
 slot_rpop(slot_t *slt);
 
 islot_t *
-slot_rpush(slot_t *slt, frame_t *value);
+slot_rpush(slot_t *slt, segment_t *value);
 
 islot_t*
 slot_lpop(slot_t *slt);
 
 islot_t *
-slot_lpush(slot_t *slt, frame_t *value);
+slot_lpush(slot_t *slt, segment_t *value);
 
 islot_t *
-slot_insert(slot_t *slt, islot_t *current, frame_t *value);
+slot_insert(slot_t *slt, islot_t *current, segment_t *value);
 
 value_t
 slot_null(slot_t *slt);
@@ -116,12 +110,3 @@ slot_first(slot_t *slt);
 
 islot_t *
 slot_last(slot_t *slt);
-
-islot_t *
-slot_first_or_default(slot_t *slt, value_t (*f)(frame_t *));
-
-islot_t *
-slot_last_or_default(slot_t *slt, value_t (*f)(frame_t *));
-
-frame_t *
-slot_aggregate(slot_t *slt, frame_t * (*f)(frame_t *, frame_t *));

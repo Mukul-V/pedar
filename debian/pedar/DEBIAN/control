@@ -2,7 +2,7 @@ Package: pedar
 Version: 1.0.0-1
 Architecture: amd64
 Maintainer: Yasser Sajjadi <yassersajjadi@gmail.com>
-Installed-Size: 106
+Installed-Size: 102
 Depends: libc6 (>= 2.7)
 Section: devel
 Priority: optional
