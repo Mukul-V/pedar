@@ -1009,7 +1009,7 @@ fn_prepare(context_t *ctx, iarray_t *c, class_t *class, char *name, value_t npar
 
 	// create entry for new fn
 	value_t i;
-	frame_t *frame2 = frame_create(ctx->class, ctx->fn);
+	frame_t *frame2 = frame_create();
 	for(i = 0; i < nparam; i++){
 		frame_push(frame2, frame_pop(ctx->frame));
 	}
@@ -2187,7 +2187,7 @@ decode_chg(context_t *ctx, iarray_t *c) {
 		if((ctx->floating = (class_t *)ctx->object->ptr)){
 			table_rpush(ctx->table_floating, (value_p)ctx->floating);
 			if(ctx->floating->type == CLASS_RAW){
-				frame_t *frame2 = frame_create(ctx->class, ctx->fn);
+				frame_t *frame2 = frame_create();
 
 				table_rpush(ctx->table_class, (value_p)ctx->class);
 				ctx->class = ctx->floating;
@@ -2494,7 +2494,7 @@ iarray_t *
 decode_new(context_t *ctx, iarray_t *c) {
 	if(ctx->object->type == TP_CLASS){
 		if((ctx->floating = (class_t *)ctx->object->ptr)){
-			frame_t *frame2 = frame_create(ctx->class, ctx->fn);
+			frame_t *frame2 = frame_create();
 
 			table_rpush(ctx->table_class, (value_p)ctx->class);
 			ctx->class = (ctx->floating->type == CLASS_RAW) ? ctx->floating : class_clone(ctx->floating);
@@ -3113,7 +3113,7 @@ decode_setup(context_t *ctx, iarray_t *c) {
 		exit(-1);
 	}
 
-	ctx->frame = frame_create(ctx->class, ctx->fn);
+	ctx->frame = frame_create();
 
 	ctx->floating = nullptr;
 	return (iarray_t *)ctx->class->start;

@@ -19,9 +19,6 @@ typedef struct slot {
 } slot_t;
 
 typedef struct frame {
-	class_t *class;
-	function_t *fn;
-
 	slot_t *slot;
 } frame_t;
 
@@ -41,7 +38,7 @@ segment_count(segment_t *fr);
 
 
 frame_t *
-frame_create(class_t *cls, function_t *fn);
+frame_create();
 
 object_t *
 frame_push(frame_t *stk, object_t *value);
@@ -79,9 +76,6 @@ islot_t*
 slot_unlink(slot_t *slt, islot_t* it);
 
 islot_t*
-slot_sort(slot_t *slt, value_t (*f)(segment_t *, segment_t *));
-
-islot_t*
 slot_remove(slot_t *slt, value_t (*f)(segment_t *));
 
 islot_t*
@@ -96,14 +90,8 @@ slot_lpop(slot_t *slt);
 islot_t *
 slot_lpush(slot_t *slt, segment_t *value);
 
-islot_t *
-slot_insert(slot_t *slt, islot_t *current, segment_t *value);
-
 value_t
 slot_null(slot_t *slt);
-
-islot_t *
-slot_at(slot_t *slt, value_t key);
 
 islot_t *
 slot_first(slot_t *slt);

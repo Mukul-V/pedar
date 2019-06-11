@@ -20,7 +20,7 @@ segment_t *
 segment_create(){
 	segment_t *fr = pedar_malloc (sizeof (segment_t));
 	fr->count = 0;
-	fr->value = (object_t **)pedar_calloc (FRAME_MAX, sizeof (object_t *));
+	fr->value = (object_t **)pedar_malloc (FRAME_MAX * sizeof (object_t *));
 	return fr;
 }
 
@@ -159,22 +159,6 @@ slot_unlink(slot_t *slt, islot_t* it)
 }
 
 islot_t*
-slot_sort(slot_t *slt, value_t (*f)(segment_t *, segment_t *))
-{
-    islot_t *b, *n;
-    for(b = slt->begin; b != slt->end; b = n){
-        n = b->next;
-        if(n != slt->end){
-            if((*f)(b->value, n->value)){
-                slot_unlink(slt, b);
-                slot_link(slt, n, b);
-            }
-        }
-    }
-    return 0;
-}
-
-islot_t*
 slot_remove(slot_t *slt, value_t (*f)(segment_t *))
 {
     islot_t *b, *n;
@@ -226,19 +210,6 @@ slot_lpush(slot_t *slt, segment_t * value)
     return slot_link(slt, slt->begin, it);
 }
 
-islot_t *
-slot_insert(slot_t *slt, islot_t *current, segment_t * value){
-    islot_t *it;
-
-    if(!(it = (islot_t *)pedar_malloc(sizeof(*it)))) {
-        return 0;
-    }
-
-    it->value = value;
-
-    return slot_link(slt, current, it);
-}
-
 value_t
 slot_null(slot_t *slt)
 {
@@ -246,47 +217,6 @@ slot_null(slot_t *slt)
         return 0;
     }
     return (slt->begin == slt->end);
-}
-
-islot_t *
-slot_at(slot_t *slt, value_t key)
-{
-    islot_t *b, *n;
-    for(b = slt->begin; b && (b != slt->end); b = n){
-        n = b->next;
-        if (key-- <= 0){
-            return b;
-        }
-    }
-
-    if(b == slt->end){
-        return 0;
-    }
-
-    islot_t *it;
-    if(!(it = (islot_t *)pedar_malloc(sizeof(*it)))) {
-        return 0;
-    }
-
-    it->value = 0;
-
-    if (slt->begin == slt->end)
-    {
-        it->next = slt->end;
-        it->previous = slt->end;
-        slt->begin = it;
-        slt->end->next = it;
-        slt->end->previous = it;
-    }
-    else
-    {
-        it->next = slt->end;
-        it->previous = slt->end->previous;
-        slt->end->previous->next = it;
-        slt->end->previous = it;
-    }
-
-    return it;
 }
 
 islot_t *
@@ -310,13 +240,11 @@ slot_last(slot_t *slt)
 
 
 frame_t *
-frame_create(class_t *cls, function_t *fn){
+frame_create(){
 	frame_t *stk;
 	if(!(stk = pedar_malloc (sizeof (frame_t)))){
 	   return nullptr;
 	}
-	stk->class = cls;
-	stk->fn = fn;
 
 	stk->slot = slot_create();
 	return stk;
@@ -326,7 +254,6 @@ object_t *
 frame_push(frame_t *stk, object_t *value){
 	islot_t *b = slot_last (stk->slot);
 	segment_t *fr;
-
 frame_repush:
 	if(b && (b != stk->slot->end)){
 		fr = slot_content(b);
@@ -334,7 +261,6 @@ frame_repush:
 			return value;
 		}
 	}
-
 	if((fr = segment_create ())){
 		b = slot_rpush (stk->slot, fr);
 		goto frame_repush;
@@ -356,7 +282,6 @@ frame_repop:
 		pedar_free (b);
 		goto frame_repop;
 	}
-
 	return nullptr;
 }
 
