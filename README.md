@@ -69,6 +69,37 @@ main(){
     - Statements and Expressions
     - Comments
 
+# Next Work
+we use params for define a function.
+```dart
+pedar {
+    params a, b, c;
+    return this;
+    fun_1 {
+        params e;
+        return e + a + b + c;
+    }
+    params d;
+}
+```
+equal to
+
+```dart
+class pedar<T> {
+    T a, b, c, d;
+    pedar(T _a,T _b,T _c,T _d){
+        a = _a;
+        b = _b;
+        c = _c;
+        d = _d;
+    }
+    
+    T fun_1(T e){
+        return e + a + b + c;
+    }
+}
+```
+
 # The Author
     Pedar was originally developed by Yasser Sajjadi (Ys) in 2019.
         Email: yassersajjadi@gmail.com
