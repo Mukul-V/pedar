@@ -74,12 +74,12 @@ we use params for define a function.
 ```dart
 pedar {
     params a, b, c;
-    return this;
     fun_1 {
         params e;
         return e + a + b + c;
     }
     params d;
+    return this;
 }
 ```
 equal to
