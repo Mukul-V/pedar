@@ -86,7 +86,7 @@ equal to
 
 ```dart
 class pedar<T> {
-    T a, b, c, d;
+    private T a, b, c, d;
     pedar(T _a,T _b,T _c,T _d){
         a = _a;
         b = _b;
@@ -94,7 +94,7 @@ class pedar<T> {
         d = _d;
     }
     
-    T fun_1(T e){
+    public T fun_1(T e){
         return e + a + b + c;
     }
 }
