@@ -76,11 +76,10 @@ pedar {
     @parameter1, @parameter2, @parameter3;
     /*  or set a variable on other class @other_class_name.parameter1  */
     fun_1 {
-        @parameter5;
-        return parameter5 + parameter1 + parameter2 + parameter3;
+        return @parameter5 + parameter1 + parameter2 + parameter3;
     }
     @parameter4;
-    return this;
+    return pedar;
 }
 ```
 equal to
