@@ -74,7 +74,9 @@ we use params for define a function.
 ```dart
 pedar {
     @parameter1, @parameter2, @parameter3;
-    /*  or set a variable on other class @other_class_name.parameter1  */
+    /*  or set a variable on other class @parent_class_name.variable1
+        or @variable1.variable2
+    */
     fun_1 {
         return @parameter5 + parameter1 + parameter2 + parameter3;
     }
