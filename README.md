@@ -73,12 +73,12 @@ main(){
 we use params for define a function.
 ```dart
 pedar {
-    params a, b, c;
+    @parameter1, @parameter2, @parameter3;
     fun_1 {
-        params e;
-        return e + a + b + c;
+        @parameter5;
+        return parameter5 + parameter1 + parameter2 + parameter3;
     }
-    params d;
+    @parameter4;
     return this;
 }
 ```
@@ -86,16 +86,16 @@ equal to
 
 ```dart
 class pedar<T> {
-    private T a, b, c, d;
+    private T parameter1, parameter2, parameter3, parameter4;
     pedar(T _a,T _b,T _c,T _d){
-        a = _a;
-        b = _b;
-        c = _c;
-        d = _d;
+        parameter1 = _a;
+        parameter2 = _b;
+        parameter3 = _c;
+        parameter4 = _d;
     }
     
-    public T fun_1(T e){
-        return e + a + b + c;
+    public T fun_1(T parameter5){
+        return parameter5 + parameter1 + parameter2 + parameter3;
     }
 }
 ```
