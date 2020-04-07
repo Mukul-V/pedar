@@ -84,7 +84,7 @@ pedar {
     return pedar;
 }
 ```
-equal to
+equal with
 
 ```dart
 class pedar<T> {
