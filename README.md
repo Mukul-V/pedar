@@ -63,14 +63,13 @@ main(){
 
 + A Pedar program basically consists of the following parts
     - Import Packages
-    - Class
-    - Functions
+    - Category
     - Variables
     - Statements and Expressions
     - Comments
 
 # Next Work
-we use '@' for define a function.
+we use '@' for define a category(class|function).
 ```dart
 pedar {
     @parameter1, @parameter2, @parameter3;
