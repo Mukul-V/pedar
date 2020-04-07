@@ -70,7 +70,7 @@ main(){
     - Comments
 
 # Next Work
-we use params for define a function.
+we use '@' for define a function.
 ```dart
 pedar {
     @parameter1, @parameter2, @parameter3;
