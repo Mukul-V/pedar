@@ -115,6 +115,24 @@ signal {
 y = signal(10);
 // result: y = 10, y = 40, y = 70, y = 100
 ```
+->
+3.'sync' create a new thread, 
+    This operator is used instead of when defining a function when using a function.
+```dart
+progress {
+    i = 0;
+    while(i < 100){
+        yeild i;
+        i = i + 1;
+    }
+}
+
+a = sync progress();
+// create a new thread from progress; result : a = 0 .. 99
+b = progress();
+// result: b = [0,1,...,99]
+
+```
 
 # The Author
     Pedar was originally developed by Yasser Sajjadi (Ys) in 2019.
