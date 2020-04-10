@@ -105,7 +105,7 @@ class pedar<T> {
 ```dart
 signal {
     i = @value1;
-    while(i < 100){
+    while(i <= 100){
         yeild i;
         i = i + 30;
     }
