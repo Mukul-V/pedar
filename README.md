@@ -101,7 +101,7 @@ class pedar<T> {
 }
 ```
 
-2. 'yeild' work in multithriding or return a array without multithriding...
+2. 'yeild' return value by a signal in multithriding or return an array without multithriding...
 ```dart
 signal {
     i = @value1;
