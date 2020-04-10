@@ -69,7 +69,7 @@ main(){
     - Comments
 
 # Next Work
-we use '@' for define a category(class|function).
+1. we use '@' for define a category(class|function).
 ```dart
 pedar {
     @parameter1, @parameter2, @parameter3;
@@ -99,6 +99,21 @@ class pedar<T> {
         return parameter5 + parameter1 + parameter2 + parameter3;
     }
 }
+```
+
+2. 'yeild' work in multithriding or return a array without multithriding...
+```dart
+signal {
+    i = @value1;
+    while(i < 100){
+        yeild i;
+        i = i + 30;
+    }
+    return;
+}
+
+y = signal(10);
+// result: y = 10, y = 40, y = 70, y = 100
 ```
 
 # The Author
