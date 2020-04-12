@@ -69,7 +69,8 @@ main(){
     - Comments
 
 # Next Work
-1. we use '@' for define a category(class|function).
+
+1. we use '@' for define parameters in a category(class|function).
 ```dart
 pedar {
     @parameter1, @parameter2, @parameter3;
