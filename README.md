@@ -68,70 +68,33 @@ main(){
     - Statements and Expressions
     - Comments
 
-# Next Work
-
-1. we use '@' for define parameters in a category(class|function).
-```dart
-pedar {
-    @parameter1, @parameter2, @parameter3;
-    /*  or set a variable on other class @parent_class_name.variable1
-        or @variable1.variable2
-    */
-    fun_1 {
-        return @parameter5 + parameter1 + parameter2 + parameter3;
-    }
-    @parameter4;
-    return pedar;
-}
-```
-equal with
+# The next goal and task
 
 ```dart
-class pedar<T> {
-    private T parameter1, parameter2, parameter3, parameter4;
-    pedar(T _a,T _b,T _c,T _d){
-        parameter1 = _a;
-        parameter2 = _b;
-        parameter3 = _c;
-        parameter4 = _d;
-    }
-    
-    public T fun_1(T parameter5){
-        return parameter5 + parameter1 + parameter2 + parameter3;
-    }
-}
-```
+/* Category is considered a class or function */
+pedar = {
+    /* Parameters 1,2 and 3 of the 'pedar' category are received as input */
+    parameter1 <- pedar;
+    parameter2 <- pedar;
+    parameter3 <- pedar;
 
-2. 'yeild' return value by a signal in multithriding or return an array without multithriding...
-```dart
-signal {
-    i = @value1;
-    while(i <= 100){
-        yeild i;
-        i = i + 30;
+    fun = {
+        parameter4 <- pedar;
+        fun <- (fun + parameter1 + parameter2 + parameter3);
     }
+
+    /* 'this'[refer to category 'pedar'] will be as output to 'pedar' class sends */
+    this -> pedar;
     return;
 }
 
-y = signal(10);
-// result: y = 10, y = 40, y = 70, y = 100
-```
-->
-3.'sync' create a new thread, 
-    This operator is used instead of when defining a function when using a function.
-```dart
-progress {
-    i = 0;
-    while(i < 100){
-        yeild i;
-        i = i + 1;
-    }
-}
+a = pedar(value1,value2,value3);
+// pedar class with 3 parameters not included the fun function
 
-a = sync progress();
-// create a new thread from progress; result : a = 0 .. 99
-b = progress();
-// result: b = [0,1,...,99]
+b = pedar(value1,value2,value3,value4);
+// pedar class with 4 parameters containing the fun function
+
+c = b.fun(value1);
 
 ```
 
