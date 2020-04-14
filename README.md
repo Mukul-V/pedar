@@ -76,6 +76,9 @@ main(){
     When calling a category (input or function), 
     the input parameters are sent to the variable containing the category, 
     so you can call them from the variable.
+    
+    this refer to category;
+    The variable 'pedar' contains a category.
 */
 
 pedar = {
