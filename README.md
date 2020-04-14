@@ -71,7 +71,13 @@ main(){
 # The next goal and task
 
 ```dart
-/* Category is considered a class or function */
+/* Category is considered a class or function. 
+The variable 'pedar' contains a category. When calling a category (input or function), the input parameters are sent to the variable containing the category, so you can call them from the variable.
+*/
+/* 
+متغیر 'pedar' 
+متغیری شامل یک کتگوری است. در هنگام فراخوانی کتگوری(کلاس یا تابع) پارامترهای ورودی به متغیر حاوی کتگوری فرستاده می شوند بنابراین شما میتوانید آنها را از متغیر فراخوانی کنید
+*/
 pedar = {
     /* Parameters 1,2 and 3 of the 'pedar' category are received as input */
     parameter1 <- pedar;
@@ -80,8 +86,12 @@ pedar = {
 
     fun = {
         parameter4 <- pedar;
-        fun <- (fun + parameter1 + parameter2 + parameter3);
+        fun <- ((parameter5 <- fun) + parameter1 + parameter2 + parameter3 + parameter4);
+        //or return ((parameter5 <- fun) + parameter1 + parameter2 + parameter3 + parameter4);
     }
+    
+    return this;
+    // this -> pedar;
 }
 
 a = pedar(value1,value2,value3);
