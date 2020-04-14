@@ -79,6 +79,16 @@ main(){
     
     this refer to category;
     The variable 'pedar' contains a category.
+    
+    operators '->', '<-' :
+    pedar {
+        //sends value1 to parameter1
+        parameter1 <- pedar;
+        
+        //sends value2 to parameter2
+        parameter2 <- pedar;
+    }
+    pedar(value1,value2,value3);
 */
 
 pedar = {
