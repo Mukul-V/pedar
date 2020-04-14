@@ -82,10 +82,6 @@ pedar = {
         parameter4 <- pedar;
         fun <- (fun + parameter1 + parameter2 + parameter3);
     }
-
-    /* 'this'[refer to category 'pedar'] will be as output to 'pedar' class sends */
-    this -> pedar;
-    return;
 }
 
 a = pedar(value1,value2,value3);
