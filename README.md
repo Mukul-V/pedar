@@ -81,7 +81,7 @@ main(){
     The variable 'pedar' contains a category.
     
     operators '->', '<-' :
-    pedar {
+    pedar = {
         //sends value1 to parameter1
         parameter1 <- pedar;
         
