@@ -72,10 +72,6 @@ main(){
 
 ```dart
 /* Category is considered a class or function. 
-    The variable 'pedar' contains a category. 
-    When calling a category (input or function), 
-    the input parameters are sent to the variable containing the category, 
-    so you can call them from the variable.
     
     this refer to category;
     The variable 'pedar' contains a category.
@@ -83,28 +79,26 @@ main(){
     operators '->', '<-' :
     pedar = {
         //sends value1 to parameter1
-        parameter1 <- pedar;
+        parameter1 <- this;
         
         //sends value2 to parameter2
-        parameter2 <- pedar;
+        parameter2 <- this;
     }
     pedar(value1,value2,value3);
 */
 
 pedar = {
-    /* Parameters 1,2 and 3 of the 'pedar' category are received as input */
-    parameter1 <- pedar;
-    parameter2 <- pedar;
-    parameter3 <- pedar;
+    parameter1 <- this;
+    parameter2 <- this;
+    parameter3 <- this;
 
     fun = {
-        parameter4 <- pedar;
-        fun <- ((parameter5 <- fun) + parameter1 + parameter2 + parameter3 + parameter4);
+        parameter4 <- super;
+        this <- ((parameter5 <- this) + parameter1 + parameter2 + parameter3 + parameter4);
         //or return ((parameter5 <- fun) + parameter1 + parameter2 + parameter3 + parameter4);
     }
     
     return this;
-    // this -> pedar;
 }
 
 a = pedar(value1,value2,value3);
