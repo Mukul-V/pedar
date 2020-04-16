@@ -95,7 +95,7 @@ pedar = {
     fun = {
         parameter4 <- super;
         this <- ((parameter5 <- this) + parameter1 + parameter2 + parameter3 + parameter4);
-        //or return ((parameter5 <- fun) + parameter1 + parameter2 + parameter3 + parameter4);
+        //or return ((parameter5 <- this) + parameter1 + parameter2 + parameter3 + parameter4);
     }
     
     return this;
