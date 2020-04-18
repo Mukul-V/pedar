@@ -87,10 +87,8 @@ main(){
     pedar(value1,value2,value3);
 */
 
-pedar = {
-    parameter1 <- this;
-    parameter2 <- this;
-    parameter3 <- this;
+category = {
+    (parameter1,parameter2,parameter3) <- this;
 
     fun = {
         parameter4 <- super;
@@ -101,13 +99,14 @@ pedar = {
     return this;
 }
 
-a = pedar(value1,value2,value3);
-// pedar class with 3 parameters not included the fun function
+a = (value1,value2,value3)->category;
+// category class with 3 parameters not included the fun function
 
-b = pedar(value1,value2,value3,value4);
-// pedar class with 4 parameters containing the fun function
+b = (value1,value2,value3,value4)->category;
+// category class with 4 parameters containing the fun function
 
-c = b.fun(value1);
+c = value1->(b.fun);
+// c = b.fun->value1;
 
 ```
 
