@@ -84,7 +84,7 @@ main(){
         //sends value2 to parameter2
         parameter2 <- this;
     }
-    pedar(value1,value2,value3);
+    pedar<-(value1,value2,value3);
 */
 
 category = {
@@ -105,8 +105,8 @@ a = (value1,value2,value3)->category;
 b = (value1,value2,value3,value4)->category;
 // category class with 4 parameters containing the fun function
 
-c = value1->(b.fun);
-// c = b.fun->value1;
+c = value1 -> (b.fun);
+// c = b.fun <- value1;
 
 ```
 
