@@ -97,6 +97,7 @@ category = {
     }
     
     return this;
+    // or this -> this;
 }
 
 a = (value1,value2,value3)->category;
