@@ -117,7 +117,6 @@ b = (value1,value2,value3,value4)->category;
 c = value1 -> (b.fun);
 // c = b.fun <- value1;
 
-/*
 // create new thread ':='
 c := value1 -> (b.fun);
 
@@ -127,13 +126,10 @@ st = c -> stateof;
 st := c -> stateof;
 
 d = c + value5;
-*/
 
-/* 
 // or we use ':>' 
 st = (value1 :> b.fun) -> stateof;
 st = ( c := value1 -> b.fun) -> stateof;
-*/
 
 ```
 
