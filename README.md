@@ -90,6 +90,11 @@ main(){
 category = {
     // Inheritance
     this : parent_category_1, parent_category_2;
+    /*
+    category : parent_category_1, parent_category_2 = {
+    
+    }
+    */
     
     (parameter1,parameter2,parameter3) <- this;
 
