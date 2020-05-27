@@ -101,11 +101,11 @@ category = {
     fun = {
         parameter4 <- super;
         this <- ((parameter5 <- this) + parameter1 + parameter2 + parameter3 + parameter4);
-        //or return ((parameter5 <- this) + parameter1 + parameter2 + parameter3 + parameter4);
+        return;
     }
     
-    return this;
-    // or this -> this;
+    this -> this;
+    // return;
 }
 
 a = (value1,value2,value3)->category;
