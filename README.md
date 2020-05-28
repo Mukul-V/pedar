@@ -89,9 +89,9 @@ main(){
 
 category = {
     // Inheritance
-    this : parent_category_1, parent_category_2;
+    this : (parent_category_1, parent_category_2);
     /*
-    category : parent_category_1, parent_category_2 = {
+    category : (parent_category_1, parent_category_2) = {
     
     }
     */
