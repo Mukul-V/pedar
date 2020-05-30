@@ -117,20 +117,6 @@ b = (value1,value2,value3,value4)->category;
 c = value1 -> (b.fun);
 // c = b.fun <- value1;
 
-// create new thread ':='
-c := value1 -> (b.fun);
-
-// If we use the 'c' variable, the program will wait for the 'c' response.
-st = c -> stateof;
-// or without wait
-st := c -> stateof;
-
-d = c + value5;
-
-// or we use ':>' 
-st = (value1 :> b.fun) -> stateof;
-st = ( c := value1 -> b.fun) -> stateof;
-
 // format, print
 fmt = ("Hello World!, %s %n","simple text", 1);
 // fmt = ["Hello World!, %s %n","simple text", 1]
@@ -140,6 +126,27 @@ fmt -> text;
 // or ("Hello World!, %s %n","simple text", 1) -> text;
 text -> console;
 // print "Hello World!, simple text 1" in console
+
+// create new thread ':>, <:'
+c = value1 :> (b.fun);
+
+// If we use the 'c' variable, the program will wait for the 'c' response.
+st = c -> stateof;
+
+// or without wait
+st = c :> stateof;
+
+//wait for c
+d = c + value5;
+
+st = (value1 :> b.fun) -> stateof;
+st = ( c = value1 :> b.fun) -> stateof;
+
+// eqaul to refrence ":="
+a = 3;
+b := a;
+a = 4;
+// b is 4
 
 ```
 
