@@ -131,6 +131,16 @@ d = c + value5;
 st = (value1 :> b.fun) -> stateof;
 st = ( c := value1 -> b.fun) -> stateof;
 
+// format, print
+fmt = ("Hello World!, %s %n","simple text", 1);
+// fmt = ["Hello World!, %s %n","simple text", 1]
+
+fmt -> text;
+// text = "Hello World!, simple text 1"
+// or ("Hello World!, %s %n","simple text", 1) -> text;
+text -> console;
+// print "Hello World!, simple text 1" in console
+
 ```
 
 # The Author
