@@ -71,21 +71,6 @@ main(){
 # The next goal and task
 
 ```dart
-/* Category is considered a class or function. 
-    
-    this refer to category;
-    The variable 'pedar' contains a category.
-    
-    operators '->', '<-' :
-    pedar = {
-        //sends value1 to parameter1
-        parameter1 <- this;
-        
-        //sends value2 to parameter2
-        parameter2 <- this;
-    }
-    pedar<-(value1,value2,value3);
-*/
 
 category = {
     // Inheritance
@@ -95,19 +80,26 @@ category = {
     
     }
     */
-    
-    (parameter1,parameter2,parameter3) <- this;
+    // operator '->' forward parameter from category to parameter1,parameter2,parameter3 
+    this -> (parameter1,parameter2,parameter3);
+    /* similar code:
+        public category(var parameter1,var parameter2,var parameter3){
+        
+        }
+    */
 
     fun = {
-        parameter4 <- super;
-        this <- ((parameter5 <- this) + parameter1 + parameter2 + parameter3 + parameter4);
+        super -> parameter4;
+        // operator '<-' use for return response
+        this <- ((this -> parameter5) + parameter1 + parameter2 + parameter3 + parameter4);
         return;
     }
     
-    this -> this;
+    this <- this;
     // return;
 }
 
+// use '->' for call category
 a = (value1,value2,value3)->category;
 // category class with 3 parameters not included the fun function
 
@@ -115,7 +107,6 @@ b = (value1,value2,value3,value4)->category;
 // category class with 4 parameters containing the fun function
 
 c = value1 -> (b.fun);
-// c = b.fun <- value1;
 
 // format, print
 fmt = ("Hello World!, %s %n","simple text", 1);
@@ -127,7 +118,7 @@ fmt -> text;
 text -> console;
 // print "Hello World!, simple text 1" in console
 
-// create new thread ':>, <:'
+// create new thread ':>'
 c = value1 :> (b.fun);
 
 // If we use the 'c' variable, the program will wait for the 'c' response.
